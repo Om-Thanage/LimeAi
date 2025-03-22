@@ -1,6 +1,4 @@
-'use client'
-
-import Link from 'next/link'
+import React from 'react';
 import {
   Popover,
   PopoverButton,
@@ -8,20 +6,20 @@ import {
   PopoverPanel,
   Transition,
   TransitionChild,
-} from '@headlessui/react'
-import clsx from 'clsx'
+} from '@headlessui/react';
+import clsx from 'clsx';
 
-import { Button } from '@/components/Button'
-import { Container } from '@/components/Container'
-import { Logo } from '@/components/Logo'
-import { NavLink } from '@/components/NavLink'
+import { Button } from './Button';
+import { Container } from './Container';
+import { Logo } from './Logo';
+import { NavLink } from './NavLink';
 
 function MobileNavLink({ href, children }) {
   return (
-    <PopoverButton as={Link} href={href} className="block w-full p-2">
+    <PopoverButton as="a" href={href} className="block w-full p-2">
       {children}
     </PopoverButton>
-  )
+  );
 }
 
 function MobileNavIcon({ open }) {
@@ -48,7 +46,7 @@ function MobileNavIcon({ open }) {
         )}
       />
     </svg>
-  )
+  );
 }
 
 function MobileNavigation() {
@@ -89,7 +87,7 @@ function MobileNavigation() {
         </TransitionChild>
       </Transition>
     </Popover>
-  )
+  );
 }
 
 export function Header() {
@@ -98,9 +96,9 @@ export function Header() {
       <Container>
         <nav className="relative z-50 flex justify-between">
           <div className="flex items-center md:gap-x-12">
-            <Link href="#" aria-label="Home">
+            <a href="#" aria-label="Home">
               <Logo className="h-10 w-auto" />
-            </Link>
+            </a>
             <div className="hidden md:flex md:gap-x-6">
               <NavLink href="#features">Features</NavLink>
               <NavLink href="#testimonials">Testimonials</NavLink>
@@ -123,5 +121,5 @@ export function Header() {
         </nav>
       </Container>
     </header>
-  )
+  );
 }

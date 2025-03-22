@@ -1,7 +1,9 @@
-import Image from 'next/image'
+import React from 'react';
+import { Container } from './Container';
 
-import { Container } from '@/components/Container'
-import backgroundImage from '@/images/background-faqs.jpg'
+// Import your background image
+// You'll need to handle the image import in a React-compatible way
+// For example, you might use: import backgroundImage from './images/background-faqs.jpg';
 
 const faqs = [
   [
@@ -17,7 +19,7 @@ const faqs = [
     {
       question: 'How do I apply for a job at TaxPal?',
       answer:
-        'We only hire our customers, so subscribe for a minimum of 6 months and then let’s talk.',
+        'We only hire our customers, so subscribe for a minimum of 6 months and then let\'s talk.',
     },
   ],
   [
@@ -30,13 +32,13 @@ const faqs = [
       question:
         'TaxPal sounds horrible but why do I still feel compelled to purchase?',
       answer:
-        'This is the power of excellent visual design. You just can’t resist it, no matter how poorly it actually functions.',
+        'This is the power of excellent visual design. You just can\'t resist it, no matter how poorly it actually functions.',
     },
     {
       question:
         'I found other companies called TaxPal, are you sure you can use this name?',
       answer:
-        'Honestly not sure at all. We haven’t actually incorporated or anything, we just thought it sounded cool and made this website.',
+        'Honestly not sure at all. We haven\'t actually incorporated or anything, we just thought it sounded cool and made this website.',
     },
   ],
   [
@@ -47,7 +49,7 @@ const faqs = [
     },
     {
       question: 'Can we expect more inventory features?',
-      answer: 'In life it’s really better to never expect anything at all.',
+      answer: 'In life it\'s really better to never expect anything at all.',
     },
     {
       question: 'I lost my password, how do I get into my account?',
@@ -55,7 +57,7 @@ const faqs = [
         'Send us an email and we will send you a copy of our latest password spreadsheet so you can find your information.',
     },
   ],
-]
+];
 
 export function Faqs() {
   return (
@@ -64,13 +66,13 @@ export function Faqs() {
       aria-labelledby="faq-title"
       className="relative overflow-hidden bg-slate-50 py-20 sm:py-32"
     >
-      <Image
+      {/* Replace Next.js Image with regular img */}
+      <img
         className="absolute left-1/2 top-0 max-w-none -translate-y-1/4 translate-x-[-30%]"
-        src={backgroundImage}
+        src="/images/background-faqs.jpg" // Update this path to your actual image location
         alt=""
         width={1558}
         height={946}
-        unoptimized
       />
       <Container className="relative">
         <div className="mx-auto max-w-2xl lg:mx-0">
@@ -81,8 +83,8 @@ export function Faqs() {
             Frequently asked questions
           </h2>
           <p className="mt-4 text-lg tracking-tight text-slate-700">
-            If you can’t find what you’re looking for, email our support team
-            and if you’re lucky someone will get back to you.
+            If you can't find what you're looking for, email our support team
+            and if you're lucky someone will get back to you.
           </p>
         </div>
         <ul
@@ -106,5 +108,5 @@ export function Faqs() {
         </ul>
       </Container>
     </section>
-  )
+  );
 }

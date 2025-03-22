@@ -1,3 +1,5 @@
+import React from 'react';
+
 export function Logo(props) {
   return (
     <svg aria-hidden="true" viewBox="0 0 109 40" {...props}>
@@ -28,5 +30,5 @@ export function Logo(props) {
         fill="#0F172A"
       />
     </svg>
-  )
+  );
 }

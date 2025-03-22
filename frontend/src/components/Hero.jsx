@@ -1,13 +1,13 @@
-import Image from 'next/image'
+import React from 'react';
+import { Button } from './Button';
+import { Container } from './Container';
 
-import { Button } from '@/components/Button'
-import { Container } from '@/components/Container'
-import logoLaravel from '@/images/logos/laravel.svg'
-import logoMirage from '@/images/logos/mirage.svg'
-import logoStatamic from '@/images/logos/statamic.svg'
-import logoStaticKit from '@/images/logos/statickit.svg'
-import logoTransistor from '@/images/logos/transistor.svg'
-import logoTuple from '@/images/logos/tuple.svg'
+// Import your logo images
+// You'll need to handle these imports in a React-compatible way
+// For example:
+// import logoLaravel from './images/logos/laravel.svg';
+// import logoMirage from './images/logos/mirage.svg';
+// etc.
 
 export function Hero() {
   return (
@@ -29,7 +29,7 @@ export function Hero() {
       </h1>
       <p className="mx-auto mt-6 max-w-2xl text-lg tracking-tight text-slate-700">
         Most bookkeeping software is accurate, but hard to use. We make the
-        opposite trade-off, and hope you don’t get audited.
+        opposite trade-off, and hope you don't get audited.
       </p>
       <div className="mt-10 flex justify-center gap-x-6">
         <Button href="/register">Get 6 months free</Button>
@@ -56,14 +56,14 @@ export function Hero() {
         >
           {[
             [
-              { name: 'Transistor', logo: logoTransistor },
-              { name: 'Tuple', logo: logoTuple },
-              { name: 'StaticKit', logo: logoStaticKit },
+              { name: 'Transistor', logo: '/images/logos/transistor.svg' },
+              { name: 'Tuple', logo: '/images/logos/tuple.svg' },
+              { name: 'StaticKit', logo: '/images/logos/statickit.svg' },
             ],
             [
-              { name: 'Mirage', logo: logoMirage },
-              { name: 'Laravel', logo: logoLaravel },
-              { name: 'Statamic', logo: logoStatamic },
+              { name: 'Mirage', logo: '/images/logos/mirage.svg' },
+              { name: 'Laravel', logo: '/images/logos/laravel.svg' },
+              { name: 'Statamic', logo: '/images/logos/statamic.svg' },
             ],
           ].map((group, groupIndex) => (
             <li key={groupIndex}>
@@ -73,7 +73,7 @@ export function Hero() {
               >
                 {group.map((company) => (
                   <li key={company.name} className="flex">
-                    <Image src={company.logo} alt={company.name} unoptimized />
+                    <img src={company.logo} alt={company.name} />
                   </li>
                 ))}
               </ul>
@@ -82,5 +82,5 @@ export function Hero() {
         </ul>
       </div>
     </Container>
-  )
+  );
 }
