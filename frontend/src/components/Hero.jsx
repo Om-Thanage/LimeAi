@@ -31,7 +31,7 @@ export function Hero() {
       Most educational tools are powerful, but complex. We simplify the experience—so you can focus on learning, not struggling.
       </p>
       <div className="mt-10 flex justify-center gap-x-6">
-        <Button href="/register">Get started for free</Button>
+        <Button href="/login">Get started for free</Button>
         <Button
           href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
           variant="outline"

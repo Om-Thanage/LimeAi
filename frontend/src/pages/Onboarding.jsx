@@ -76,10 +76,10 @@ function Onboarding() {
 
             {/* Div 5 */}
             <div className="col-span-2 row-span-4 col-start-4 row-start-4 bg-purple-50 p-6 rounded-lg flex flex-col">
-              <h3 className="text-xl font-semibold mb-2">Progress Heatmap</h3>
-              <p className="text-gray-600 mb-4">Track your activity and progress.</p>
+              <h3 className="text-xl font-semibold mb-2">AI Summarizer</h3>
+              <p className="text-gray-600 mb-4">Summarize your lesson within seconds.Chat with AI and solve your doubts!</p>
               <div className="bg-purple-100 rounded-lg flex-grow flex items-center justify-center">
-                <span className="text-purple-600">Heatmap Preview</span>
+                <span className="text-purple-600">Summarizer Preview</span>
               </div>
             </div>
 
@@ -96,9 +96,6 @@ function Onboarding() {
 
         {/* Action Buttons */}
         <div className="flex justify-end space-x-4">
-          <button className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-            Skip
-          </button>
           <button
             onClick={completeOnboarding}
             className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
