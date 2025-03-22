@@ -20,3 +20,4 @@ yarn-error.log*
 # Cache
 .npm
 .eslintcache 
+.env
