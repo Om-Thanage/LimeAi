@@ -31,7 +31,7 @@ An application that generates visual flowcharts to help understand complex conce
 
 4. Start the backend server:
    ```
-   npm run dev
+   node server.js
    ```
    The server will run on http://localhost:3001
 
