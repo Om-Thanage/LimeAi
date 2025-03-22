@@ -7,12 +7,12 @@ export function Footer() {
     <footer className="bg-slate-50">
       <Container>
         <div className="py-16">
-          <img src="../images/LimeAi.svg" alt="LimeAi Logo" className="mx-auto h-5 w-auto" />
+          <img src="/images/LimeAi.svg" alt="LimeAi Logo" className="mx-auto h-5 w-auto" />
           <nav className="mt-10 text-sm" aria-label="quick links">
             <div className="-my-1 flex justify-center gap-x-6">
-              <NavLink href="#features">Dream</NavLink>
-              <NavLink href="#testimonials">Develop</NavLink>
-              <NavLink href="#pricing">Disrupt</NavLink>
+              <NavLink href="#">Dream</NavLink>
+              <NavLink href="#">Develop</NavLink>
+              <NavLink href="#">Disrupt</NavLink>
             </div>
           </nav>
         </div>
