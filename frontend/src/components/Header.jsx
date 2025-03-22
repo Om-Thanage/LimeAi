@@ -12,8 +12,9 @@ import { Link } from 'react-router-dom';
 
 import { Button } from './Button';
 import { Container } from './Container';
-import { Logo } from './Logo';
 import { NavLink } from './NavLink';
+
+import limeai from '../images/LimeAi.svg';
 
 function MobileNavLink({ href, children }) {
   return (
@@ -23,33 +24,7 @@ function MobileNavLink({ href, children }) {
   );
 }
 
-function MobileNavIcon({ open }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className="h-3.5 w-3.5 overflow-visible stroke-slate-700"
-      fill="none"
-      strokeWidth={2}
-      strokeLinecap="round"
-    >
-      <path
-        d="M0 1H14M0 7H14M0 13H14"
-        className={clsx(
-          'origin-center transition',
-          open && 'scale-90 opacity-0',
-        )}
-      />
-      <path
-        d="M2 2L12 12M12 2L2 12"
-        className={clsx(
-          'origin-center transition',
-          !open && 'scale-90 opacity-0',
-        )}
-      />
-    </svg>
-  );
-}
-
+// Add a MobileNavigation component definition
 function MobileNavigation() {
   return (
     <Popover>
@@ -57,19 +32,9 @@ function MobileNavigation() {
         className="relative z-10 flex h-8 w-8 items-center justify-center ui-not-focus-visible:outline-none"
         aria-label="Toggle Navigation"
       >
-        {({ open }) => <MobileNavIcon open={open} />}
+        <span>Menu</span>
       </PopoverButton>
       <Transition>
-        <TransitionChild
-          enter="duration-150 ease-out"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="duration-150 ease-in"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <PopoverBackdrop className="fixed inset-0 bg-slate-300/50" />
-        </TransitionChild>
         <TransitionChild
           enter="duration-150 ease-out"
           enterFrom="opacity-0 scale-95"
@@ -78,9 +43,9 @@ function MobileNavigation() {
           leaveFrom="opacity-100 scale-100"
           leaveTo="opacity-0 scale-95"
         >
-          <PopoverPanel className="absolute inset-x-0 top-full mt-4 flex origin-top flex-col rounded-2xl bg-white p-4 text-lg tracking-tight text-slate-900 shadow-xl ring-1 ring-slate-900/5">
-            <hr className="m-2 border-slate-300/40" />
+          <PopoverPanel className="absolute inset-x-0 top-full mt-4 flex flex-col bg-white p-4 shadow-lg">
             <MobileNavLink href="/login">Sign in</MobileNavLink>
+            {/* Add more mobile nav links as needed */}
           </PopoverPanel>
         </TransitionChild>
       </Transition>
@@ -94,9 +59,9 @@ export function Header() {
       <Container>
         <nav className="relative z-50 flex justify-between">
           <div className="flex items-center md:gap-x-12">
-            <a href="#" aria-label="Home">
-              <Logo className="h-10 w-auto" />
-            </a>
+            <Link to="/" aria-label="Home">
+              <img src={limeai} alt="LimeAi Logo" className="h-10 w-auto" />
+            </Link>
           </div>
           <div className="flex items-center gap-x-5 md:gap-x-8">
             <div className="hidden md:block">
