@@ -27,6 +27,7 @@
     "pdf-lib": "^1.17.1",
     "pdf-parse": "^1.1.1",
     "react": "^19.0.0",
+    "react-color": "^2.19.3",
     "react-dom": "^19.0.0",
     "react-konva": "^19.0.3",
     "react-router-dom": "^7.4.0",
