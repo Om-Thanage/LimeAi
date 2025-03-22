@@ -1,10 +1,10 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-router-dom"
 import Flowchart from "./pages/flowchart"
 import Login from "./pages/Login"
 import Dashboard from "./pages/Dashboard"
 import Onboarding from "./pages/Onboarding"
-import { AuthProvider } from "./context/AuthContext"
+import { AuthProvider, useAuth } from "./context/AuthContext"
 import { ProtectedRoute } from "./components/ProtectedRoute"
 import "./App.css"
 
@@ -13,15 +13,7 @@ const App = () => {
     <Router>
       <AuthProvider>
         <div className="app-container">
-          <nav className="navbar">
-            <div className="nav-logo">
-              <Link to="/home">ConceptFlow</Link>
-            </div>
-            <div className="nav-links">
-              <Link to="/home" className="nav-link">Home</Link>
-              <Link to="/flowchart" className="nav-link">Flowchart Generator</Link>
-            </div>
-          </nav>
+          <Navigation />
 
           <main className="main-content">
             <Routes>
@@ -69,5 +61,37 @@ const Home = () => {
     </div>
   )
 }
+
+const Navigation = () => {
+  const { currentUser, logout } = useAuth();
+  return (
+    <nav className="navbar">
+      <div className="nav-logo">
+        <Link to={currentUser ? "/dashboard" : "/"}>
+          <span className="logo-text">ConceptFlow</span>
+        </Link>
+      </div>
+      <div className="nav-links">
+        {currentUser ? (
+          <>
+            <Link to="/dashboard" className="nav-link">Dashboard</Link>
+            <Link to="/flowchart" className="nav-link">Flowchart Generator</Link>
+            <button
+              onClick={logout}
+              className="nav-button"
+            >
+              Logout
+            </button>
+          </>
+        ) : (
+          <>
+            <Link to="/home" className="nav-link">Home</Link>
+            <Link to="/login" className="nav-link">Sign In</Link>
+          </>
+        )}
+      </div>
+    </nav>
+  );
+};
 
 export default App
