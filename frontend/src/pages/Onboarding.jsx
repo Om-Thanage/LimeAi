@@ -58,7 +58,7 @@ function Onboarding() {
           <div className="grid grid-cols-5 grid-rows-7 gap-4 h-[800px] w-full">
             {/* Div 3 - Large Main Feature */}
             <div className="col-span-3 row-span-4 bg-blue-50 p-6 rounded-lg flex flex-col">
-              <h3 className="text-2xl font-semibold mb-4">ExcaliDraw</h3>
+              <h3 className="text-2xl font-semibold mb-4">Whiteboard</h3>
               <p className="text-gray-600 mb-4">Create stunning drawings with AI-powered tools.</p>
               <div className="bg-blue-100 rounded-lg flex-grow flex items-center justify-center">
                 <span className="text-blue-600">Drawing Canvas Preview</span>
@@ -67,8 +67,8 @@ function Onboarding() {
 
             {/* Div 4 */}
             <div className="col-span-2 row-span-3 col-start-4 bg-red-50 p-6 rounded-lg flex flex-col">
-              <h3 className="text-xl font-semibold mb-2">Flowchart Maker</h3>
-              <p className="text-gray-600 mb-4">Design professional flowcharts instantly.</p>
+              <h3 className="text-xl font-semibold mb-2">Flowchart Visualizer</h3>
+              <p className="text-gray-600 mb-4">Get Conceptual clarity using flowcharts instantly.</p>
               <div className="bg-red-100 rounded-lg flex-grow flex items-center justify-center">
                 <span className="text-red-600">Flowchart Preview</span>
               </div>

@@ -1,65 +1,52 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Stage, Layer, Rect, Line, Circle, Transformer, Text } from 'react-konva';
+import { ChromePicker } from 'react-color';
 
 const Whiteboard = () => {
-  // State for managing shapes
   const [shapes, setShapes] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
-  const [tool, setTool] = useState('pen'); // pen, rect, circle, text, eraser, select
+  const [tool, setTool] = useState('pen');
   const [lines, setLines] = useState([]);
   const [isPainting, setIsPainting] = useState(false);
   const [textEditingId, setTextEditingId] = useState(null);
   const [textValue, setTextValue] = useState('');
   const [history, setHistory] = useState([]);
   const [historyStep, setHistoryStep] = useState(0);
-  
-  // Refs
-  const stageRef = useRef(null);
-  const textAreaRef = useRef(null);
-  const transformerRef = useRef(null);
-  
-  // Style and config
   const [strokeWidth, setStrokeWidth] = useState(3);
   const [strokeColor, setStrokeColor] = useState('#000000');
   const [fillColor, setFillColor] = useState('transparent');
-  
-  // Handle selection
+
+  const stageRef = useRef(null);
+  const textAreaRef = useRef(null);
+  const transformerRef = useRef(null);
+
   useEffect(() => {
     if (selectedId && transformerRef.current) {
-      // Find the selected node
       const selectedNode = stageRef.current.findOne('#' + selectedId);
       if (selectedNode) {
-        // Attach transformer to the selected node
         transformerRef.current.nodes([selectedNode]);
         transformerRef.current.getLayer().batchDraw();
       }
     } else if (transformerRef.current) {
-      // Clear transformer nodes
       transformerRef.current.nodes([]);
       transformerRef.current.getLayer().batchDraw();
     }
   }, [selectedId]);
-  
-  // Handle text editing
+
   useEffect(() => {
     if (textEditingId !== null) {
       const shape = shapes.find(s => s.id === textEditingId);
       if (shape && shape.type === 'text') {
         setTextValue(shape.text);
-        
-        // Position textarea over the text on stage
         const stage = stageRef.current;
         const textNode = stage.findOne('#' + textEditingId);
-        
         if (textNode && textAreaRef.current) {
           const textPosition = textNode.absolutePosition();
           const stageBox = stage.container().getBoundingClientRect();
-          
           const areaPosition = {
             x: stageBox.left + textPosition.x,
             y: stageBox.top + textPosition.y,
           };
-          
           const textarea = textAreaRef.current;
           textarea.style.position = 'absolute';
           textarea.style.top = `${areaPosition.y}px`;
@@ -78,14 +65,12 @@ const Whiteboard = () => {
           textarea.style.fontFamily = 'sans-serif';
           textarea.style.transformOrigin = 'left top';
           textarea.style.display = 'block';
-          
           textarea.focus();
         }
       }
     }
   }, [textEditingId, shapes]);
-  
-  // Save state to history
+
   const addToHistory = () => {
     const newHistory = history.slice(0, historyStep + 1);
     newHistory.push({
@@ -95,8 +80,7 @@ const Whiteboard = () => {
     setHistory(newHistory);
     setHistoryStep(newHistory.length - 1);
   };
-  
-  // Undo
+
   const handleUndo = () => {
     if (historyStep > 0) {
       const newStep = historyStep - 1;
@@ -106,8 +90,7 @@ const Whiteboard = () => {
       setHistoryStep(newStep);
     }
   };
-  
-  // Redo
+
   const handleRedo = () => {
     if (historyStep < history.length - 1) {
       const newStep = historyStep + 1;
@@ -117,27 +100,25 @@ const Whiteboard = () => {
       setHistoryStep(newStep);
     }
   };
-  
-  // Handle mouse down
+
   const handleMouseDown = (e) => {
     if (textEditingId !== null) {
       completeTextEditing();
       return;
     }
-    
-    // Deselect when clicking on empty area
+
     const clickedOnEmpty = e.target === e.target.getStage();
     if (clickedOnEmpty) {
       setSelectedId(null);
     }
-    
+
     if (tool === 'select') {
       return;
     }
-    
+
     setIsPainting(true);
     const pos = e.target.getStage().getPointerPosition();
-    
+
     if (tool === 'pen') {
       const newLine = {
         id: Date.now().toString(),
@@ -202,16 +183,15 @@ const Whiteboard = () => {
       setTextEditingId(id);
     }
   };
-  
-  // Handle mouse move
+
   const handleMouseMove = (e) => {
     if (!isPainting) {
       return;
     }
-    
+
     const stage = e.target.getStage();
     const point = stage.getPointerPosition();
-    
+
     if (tool === 'pen' || tool === 'eraser') {
       const lastLine = lines[lines.length - 1];
       if (lastLine) {
@@ -239,7 +219,6 @@ const Whiteboard = () => {
         const dx = point.x - selectedShape.x;
         const dy = point.y - selectedShape.y;
         const radius = Math.sqrt(dx * dx + dy * dy);
-        
         const newShapes = shapes.map(shape => {
           if (shape.id === selectedId) {
             return {
@@ -253,21 +232,18 @@ const Whiteboard = () => {
       }
     }
   };
-  
-  // Handle mouse up
+
   const handleMouseUp = () => {
     if (isPainting) {
       setIsPainting(false);
       addToHistory();
     }
   };
-  
-  // Handle shape transform
+
   const handleTransformEnd = () => {
     addToHistory();
   };
-  
-  // Complete text editing
+
   const completeTextEditing = () => {
     if (textEditingId !== null && textAreaRef.current) {
       const newShapes = shapes.map(shape => {
@@ -279,33 +255,27 @@ const Whiteboard = () => {
         }
         return shape;
       });
-      
       setShapes(newShapes);
       setTextEditingId(null);
       setTextValue('');
       addToHistory();
     }
   };
-  
-  // Handle text change
+
   const handleTextChange = (e) => {
     setTextValue(e.target.value);
   };
-  
-  // Handle text area key down
+
   const handleTextAreaKeyDown = (e) => {
     if (e.keyCode === 13 && !e.shiftKey) {
-      // Enter without shift
       completeTextEditing();
     }
     if (e.keyCode === 27) {
-      // Escape
       setTextEditingId(null);
       setTextValue('');
     }
   };
-  
-  // Export as image
+
   const exportImage = () => {
     const dataURL = stageRef.current.toDataURL();
     const link = document.createElement('a');
@@ -315,19 +285,17 @@ const Whiteboard = () => {
     link.click();
     document.body.removeChild(link);
   };
-  
-  // Clear whiteboard
+
   const clearWhiteboard = () => {
     setShapes([]);
     setLines([]);
     addToHistory();
   };
-  
-  // Initialize history
+
   useEffect(() => {
     addToHistory();
   }, []);
-  
+
   return (
     <div className="whiteboard-container" style={{ position: 'relative', width: '100%', height: '100%' }}>
       {/* Toolbar */}
@@ -538,8 +506,8 @@ const Whiteboard = () => {
           width={window.innerWidth - 20}
           height={window.innerHeight - 120}
           onMouseDown={handleMouseDown}
-          onMousemove={handleMouseMove}
-          onMouseup={handleMouseUp}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
           onTouchStart={handleMouseDown}
           onTouchMove={handleMouseMove}
           onTouchEnd={handleMouseUp}

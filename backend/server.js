@@ -750,24 +750,32 @@ app.post('/api/generate-podcast-content', async (req, res) => {
         ${stylePrompt}
         
         FORMAT REQUIREMENTS:
-        - Create a script with two speakers: HOST and GUEST
-        - Every line of dialogue should start with "HOST:" or "GUEST:"
-        - Include natural back-and-forth conversation
-        - Keep individual speaking parts relatively short (1-3 sentences each)
-        - Total length should be around 500-800 words
-        
-        The podcast should:
-        1. Have a clear introduction where the HOST welcomes listeners and introduces the topic
-        2. Include proper transitions between subtopics
-        3. Be engaging and conversational
-        4. End with a conclusion and sign-off
-        
-        Here's the document content to transform into a podcast conversation:
-        ---
-        ${text.length > 8000 ? text.slice(0, 8000) + "... (document truncated for length)" : text}
-        ---
-        
-        Generate a conversational podcast script based on this content.
+        Create a natural and engaging podcast script featuring two speakers: HOST and GUEST
+        Each line of dialogue should begin with "HOST:" or "GUEST:"
+        Keep dialogue concise (1-3 sentences per speaker)
+        Maintain a conversational and dynamic back-and-forth exchange
+        Total length: 500-800 words
+        STRUCTURE & FLOW:
+        Introduction:
+        HOST welcomes listeners and introduces the topic in an engaging way
+        GUEST responds, setting up the discussion naturally
+        Main Discussion:
+        Smooth transitions between subtopics
+        A mix of insights, questions, and real-world examples to maintain engagement
+        Occasional humor or rhetorical questions to keep it lively
+        Pacing & Speech Intervals:
+        The script should naturally flow with short pauses (for emphasis or dramatic effect)
+        Use brackets for pacing suggestions: [Pause], [Short Beat], or [Emphasize]
+        If necessary, include scene-setting cues (e.g., "[Background music fades]")
+        Conclusion & Sign-Off:
+        Summarize key takeaways in a clear and memorable way
+        End with a friendly and engaging sign-off, inviting listeners to tune in again
+    INPUT DOCUMENT:
+    ${text}
+    OUTPUT EXPECTATION:
+A well-structured podcast conversation based on the provided content
+Engaging, easy to follow, and enjoyable for listeners
+Clear pacing and transitions to ensure a natural listening experience
       `;
       
       // Call DeepSeek API
