@@ -6,7 +6,6 @@ import Dashboard from "./pages/Dashboard"
 import Onboarding from "./pages/Onboarding"
 import { AuthProvider, useAuth } from "./context/AuthContext"
 import { ProtectedRoute } from "./components/ProtectedRoute"
-import "./App.css"
 
 const App = () => {
   return (
