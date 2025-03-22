@@ -1,14 +1,8 @@
-'use client'
+import React, { useId } from 'react';
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react';
+import clsx from 'clsx';
 
-import { useId } from 'react'
-import Image from 'next/image'
-import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react'
-import clsx from 'clsx'
-
-import { Container } from '@/components/Container'
-import screenshotContacts from '@/images/screenshots/contacts.png'
-import screenshotInventory from '@/images/screenshots/inventory.png'
-import screenshotProfitLoss from '@/images/screenshots/profit-loss.png'
+import { Container } from './Container';
 
 const features = [
   {
@@ -16,9 +10,9 @@ const features = [
     summary: 'Stay on top of things with always up-to-date reporting features.',
     description:
       'We talked about reporting in the section above but we needed three items here, so mentioning it one more time for posterity.',
-    image: screenshotProfitLoss,
+    image: '/images/screenshots/profit-loss.png',
     icon: function ReportingIcon() {
-      let id = useId()
+      let id = useId();
       return (
         <>
           <defs>
@@ -42,16 +36,16 @@ const features = [
             strokeLinejoin="round"
           />
         </>
-      )
+      );
     },
   },
   {
     name: 'Inventory',
     summary:
-      'Never lose track of what’s in stock with accurate inventory tracking.',
+      'Never lose track of what\'s in stock with accurate inventory tracking.',
     description:
-      'We don’t offer this as part of our software but that statement is inarguably true. Accurate inventory tracking would help you for sure.',
-    image: screenshotInventory,
+      'We don\'t offer this as part of our software but that statement is inarguably true. Accurate inventory tracking would help you for sure.',
+    image: '/images/screenshots/inventory.png',
     icon: function InventoryIcon() {
       return (
         <>
@@ -70,7 +64,7 @@ const features = [
             fill="#fff"
           />
         </>
-      )
+      );
     },
   },
   {
@@ -78,8 +72,8 @@ const features = [
     summary:
       'Organize all of your contacts, service providers, and invoices in one place.',
     description:
-      'This also isn’t actually a feature, it’s just some friendly advice. We definitely recommend that you do this, you’ll feel really organized and professional.',
-    image: screenshotContacts,
+      'This also isn\'t actually a feature, it\'s just some friendly advice. We definitely recommend that you do this, you\'ll feel really organized and professional.',
+    image: '/images/screenshots/contacts.png',
     icon: function ContactsIcon() {
       return (
         <>
@@ -93,10 +87,10 @@ const features = [
             fill="#fff"
           />
         </>
-      )
+      );
     },
   },
-]
+];
 
 function Feature({ feature, isActive, className, ...props }) {
   return (
@@ -127,7 +121,7 @@ function Feature({ feature, isActive, className, ...props }) {
       </p>
       <p className="mt-4 text-sm text-slate-600">{feature.description}</p>
     </div>
-  )
+  );
 }
 
 function FeaturesMobile() {
@@ -139,18 +133,19 @@ function FeaturesMobile() {
           <div className="relative mt-10 pb-10">
             <div className="absolute -inset-x-4 bottom-0 top-8 bg-slate-200 sm:-inset-x-6" />
             <div className="relative mx-auto w-[52.75rem] overflow-hidden rounded-xl bg-white shadow-lg shadow-slate-900/5 ring-1 ring-slate-500/10">
-              <Image
+              <img
                 className="w-full"
                 src={feature.image}
                 alt=""
-                sizes="52.75rem"
+                width={1688}
+                height={1024}
               />
             </div>
           </div>
         </div>
       ))}
     </div>
-  )
+  );
 }
 
 function FeaturesDesktop() {
@@ -190,11 +185,12 @@ function FeaturesDesktop() {
                   aria-hidden={featureIndex !== selectedIndex}
                 >
                   <div className="w-[52.75rem] overflow-hidden rounded-xl bg-white shadow-lg shadow-slate-900/5 ring-1 ring-slate-500/10">
-                    <Image
+                    <img
                       className="w-full"
                       src={feature.image}
                       alt=""
-                      sizes="52.75rem"
+                      width={1688}
+                      height={1024}
                     />
                   </div>
                 </TabPanel>
@@ -205,7 +201,7 @@ function FeaturesDesktop() {
         </>
       )}
     </TabGroup>
-  )
+  );
 }
 
 export function SecondaryFeatures() {
@@ -221,7 +217,7 @@ export function SecondaryFeatures() {
             Simplify everyday business tasks.
           </h2>
           <p className="mt-4 text-lg tracking-tight text-slate-700">
-            Because you’d probably be a little confused if we suggested you
+            Because you'd probably be a little confused if we suggested you
             complicate your everyday business tasks instead.
           </p>
         </div>
@@ -229,5 +225,5 @@ export function SecondaryFeatures() {
         <FeaturesDesktop />
       </Container>
     </section>
-  )
+  );
 }
