@@ -5,9 +5,6 @@ import Login from "./pages/Login"
 import Dashboard from "./pages/Dashboard"
 import Onboarding from "./pages/Onboarding"
 import Flowchart from './pages/flowchart'
-import "./App.css"
-import { Link } from "react-router-dom"
-import { useAuth } from './context/AuthContext'
 import Podcast from "./pages/Podcast"
 import App2  from "./pages/App2"
 import Summary from "./pages/Summary"

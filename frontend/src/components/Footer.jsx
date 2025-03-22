@@ -1,6 +1,5 @@
 import React from 'react';
 import { Container } from './Container';
-import { Logo } from './Logo';
 import { NavLink } from './NavLink';
 
 export function Footer() {
@@ -11,9 +10,9 @@ export function Footer() {
           <img src="../images/LimeAi.svg" alt="LimeAi Logo" className="mx-auto h-5 w-auto" />
           <nav className="mt-10 text-sm" aria-label="quick links">
             <div className="-my-1 flex justify-center gap-x-6">
-              <NavLink href="#features">Features</NavLink>
-              <NavLink href="#testimonials">Testimonials</NavLink>
-              <NavLink href="#pricing">Pricing</NavLink>
+              <NavLink href="#features">Dream</NavLink>
+              <NavLink href="#testimonials">Develop</NavLink>
+              <NavLink href="#pricing">Disrupt</NavLink>
             </div>
           </nav>
         </div>
