@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import mermaid from 'mermaid';
 import './flowchart.css';
+import { useAuth } from '../context/AuthContext';
+import { saveContentToFirestore } from '../utils/firebaseHelpers';
 
 // API base URL - change this when deploying
 const API_BASE_URL = 'http://localhost:3001';
@@ -12,7 +14,9 @@ const Flowchart = () => {
   const [error, setError] = useState('');
   const [fallbackMessage, setFallbackMessage] = useState('');
   const [isApiGenerated, setIsApiGenerated] = useState(true);
+  const [saved, setSaved] = useState(false);
   const flowchartRef = useRef(null);
+  const { currentUser } = useAuth();
   
   // Throttle requests to avoid overwhelming the API
   const [lastRequestTime, setLastRequestTime] = useState(0);
@@ -62,6 +66,7 @@ const Flowchart = () => {
     setLoading(true);
     setError('');
     setFallbackMessage('');
+    setSaved(false);
     setLastRequestTime(Date.now());
     
     try {
@@ -80,7 +85,22 @@ const Flowchart = () => {
         setFlowchartCode(data.mermaidCode);
         setIsApiGenerated(data.isGeneratedByApi === true);
         
-        // Check if this is a fallback or cached response
+        // Save to Firebase if user is logged in
+        if (currentUser) {
+          try {
+            await saveContentToFirestore(
+              currentUser.uid,
+              concept,
+              data.mermaidCode,
+              'flowchart'
+            );
+            setSaved(true);
+          } catch (error) {
+            console.error('Error saving flowchart:', error);
+          }
+        }
+        
+        
         if (data.message) {
           setFallbackMessage(data.message);
         }
@@ -91,7 +111,6 @@ const Flowchart = () => {
       setError(`Error generating flowchart: ${err.message}`);
       console.error(err);
       
-      // Use the hardcoded example as a last resort
       handleSampleFlowchart();
     } finally {
       setLoading(false);
@@ -146,6 +165,7 @@ const Flowchart = () => {
         </div>
         
         {error && <p className="error">{error}</p>}
+        {saved && <div className="saved-message">Flowchart saved to your account! Check the Dashboard to view it later.</div>}
         
         <p className="api-note">
           <strong>AI Powered Flowcharts:</strong> This app uses DeepSeek AI to generate custom flowcharts.

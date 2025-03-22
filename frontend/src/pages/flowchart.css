@@ -227,3 +227,14 @@ h1 {
   font-size: 0.95rem;
   line-height: 1.5;
 }
+
+/* Saved message styling */
+.saved-message {
+  background-color: #d1fae5;
+  border-left: 4px solid #10b981;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0 4px 4px 0;
+  color: #065f46;
+  font-weight: 500;
+}

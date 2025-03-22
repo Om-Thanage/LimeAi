@@ -1,15 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Users, Settings, FolderOpen, BookOpen, 
-  BarChart2, Plus, Calendar, ChevronDown, LogOut
+  BarChart2, Plus, Calendar, ChevronDown, LogOut,
+  Clock, FileText, Mic, GitBranch, X
 } from 'lucide-react';
 
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../context/AuthContext';
+import { getRecentActivities } from '../utils/firebaseHelpers';
+import { marked } from 'marked';
 
 function Dashboard() {
-  const [selectedTab, setSelectedTab] = useState('All');
-  const { currentUser, logout} = useAuth();
+  const { currentUser, logout } = useAuth();
   const [hoveredItem, setHoveredItem] = useState(null);
+  const [activities, setActivities] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedActivity, setSelectedActivity] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   const handleMouseEnter = (item) => {
     setHoveredItem(item);
@@ -18,6 +24,117 @@ function Dashboard() {
   const handleMouseLeave = () => {
     setHoveredItem(null);
   };
+
+  // Fetch recent activities
+  useEffect(() => {
+    const fetchActivities = async () => {
+      if (currentUser) {
+        try {
+          const recentActivities = await getRecentActivities(currentUser.uid, 10);
+          setActivities(recentActivities || []); 
+        } catch (error) {
+          console.error('Error fetching activities:', error);
+          setActivities([]);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+      }
+    };
+
+    fetchActivities();
+  }, [currentUser]);
+
+  
+  const getActivityIcon = (type) => {
+    switch (type) {
+      case 'flowchart':
+        return <GitBranch className="w-5 h-5 text-blue-500" />;
+      case 'summary':
+        return <FileText className="w-5 h-5 text-green-500" />;
+      case 'podcast':
+        return <Mic className="w-5 h-5 text-orange-500" />;
+      default:
+        return <Clock className="w-5 h-5 text-gray-500" />;
+    }
+  };
+
+  
+  const formatDate = (date) => {
+    if (!date) return '';
+    return new Date(date).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  
+  const openContentModal = (activity) => {
+    setSelectedActivity(activity);
+    setShowModal(true);
+  };
+
+  
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedActivity(null);
+  };
+
+  
+  const renderContent = (activity) => {
+    switch (activity.type) {
+      case 'flowchart':
+        return (
+          <div className="p-4">
+            <h3 className="text-lg font-bold mb-4">Flowchart: {activity.title}</h3>
+            <div className="bg-gray-50 p-4 rounded-lg overflow-auto">
+              <div className="mermaid">{activity.content}</div>
+            </div>
+          </div>
+        );
+      case 'summary':
+        return (
+          <div className="p-4">
+            <h3 className="text-lg font-bold mb-4">Summary: {activity.title}</h3>
+            <div className="prose max-w-none" 
+                 dangerouslySetInnerHTML={{ __html: marked.parse(activity.content) }}>
+            </div>
+          </div>
+        );
+      case 'podcast':
+        return (
+          <div className="p-4">
+            <h3 className="text-lg font-bold mb-4">Podcast: {activity.title}</h3>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <pre className="whitespace-pre-wrap text-sm">{activity.content}</pre>
+            </div>
+          </div>
+        );
+      default:
+        return <div>Unsupported content type</div>;
+    }
+  };
+
+  
+  useEffect(() => {
+    if (showModal && selectedActivity?.type === 'flowchart') {
+      import('mermaid').then(mermaid => {
+        mermaid.default.initialize({
+          startOnLoad: true,
+          theme: 'default',
+          securityLevel: 'loose',
+        });
+        try {
+          mermaid.default.init(undefined, document.querySelectorAll('.mermaid'));
+        } catch (e) {
+          console.error('Error initializing mermaid', e);
+        }
+      });
+    }
+  }, [showModal, selectedActivity]);
 
   return (
     <div className="flex h-screen bg-blue-500">
@@ -129,85 +246,59 @@ function Dashboard() {
               <h1 className="text-3xl font-bold text-left mb-1">{currentUser?.displayName} <span className="text-yellow-400"></span></h1>
             </div>
             
-            
-            {/* Your class section */}
+            {/* Recent Activity section */}
             <div>
               <h2 className="text-xl font-bold mb-4">Recent Activity</h2>
               
-              {/* <div className="flex mb-4 border-b">
-                <button 
-                  className={`pb-2 mr-6 ${selectedTab === 'All' ? 'text-black border-b-2 border-black font-medium' : 'text-gray-500'}`}
-                  onClick={() => setSelectedTab('All')}
-                >
-                  All
-                </button>
-                <button 
-                  className={`pb-2 mr-6 ${selectedTab === 'Design' ? 'text-black border-b-2 border-black font-medium' : 'text-gray-500'}`}
-                  onClick={() => setSelectedTab('Design')}
-                >
-                  Design
-                </button>
-                <button 
-                  className={`pb-2 mr-6 ${selectedTab === 'Science' ? 'text-black border-b-2 border-black font-medium' : 'text-gray-500'}`}
-                  onClick={() => setSelectedTab('Science')}
-                >
-                  Science
-                </button>
-                <button 
-                  className={`pb-2 ${selectedTab === 'Coding' ? 'text-black border-b-2 border-black font-medium' : 'text-gray-500'}`}
-                  onClick={() => setSelectedTab('Coding')}
-                >
-                  Coding
-                </button>
-                
-                <div className="flex-1 flex justify-end">
-                  <button className="text-gray-400 mx-2">
-                    <Filter className="w-5 h-5" />
-                  </button>
-                  <button className="text-gray-400 mx-2">
-                    <Edit className="w-5 h-5" />
-                  </button>
-                </div>
-              </div> */}
-              
-              {/* Microbiology Society class */}
-              {/* <div className="bg-yellow-50 rounded-xl p-4">
-                <div className="flex items-center">
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
-                    <svg className="w-8 h-8 text-green-500" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 16a1 1 0 1 1 1-1 1 0 0 1-1 1zm1-5a1 1 0 0 1-2 0V8a1 1 0 0 1 2 0z" />
-                    </svg>
-                  </div>
-                  
-                  <div className="flex-1">
-                    <h3 className="font-bold">Microbiology Society</h3>
-                    <div className="grid grid-cols-3 gap-2 text-sm text-gray-500 mt-1">
-                      <div className="flex items-center">
-                        <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M12 5v14M18 11l-6-6M6 11l6-6" />
-                        </svg>
-                        10 lesson
-                      </div>
-                      <div className="flex items-center">
-                        <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <circle cx="12" cy="12" r="10" />
-                          <polyline points="12 6 12 12 16 14" />
-                        </svg>
-                        45 min
-                      </div>
-                      <div className="flex items-center">
-                        <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                          <circle cx="9" cy="7" r="4" />
-                          <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                        </svg>
-                        256 students
+              {loading ? (
+                <div className="space-y-4">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="animate-pulse flex">
+                      <div className="rounded-full bg-slate-200 h-10 w-10"></div>
+                      <div className="flex-1 ml-4 space-y-2">
+                        <div className="h-4 bg-slate-200 rounded w-3/4"></div>
+                        <div className="h-4 bg-slate-200 rounded w-1/2"></div>
                       </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              </div> */}
+              ) : activities.length > 0 ? (
+                <div className="space-y-4">
+                  {activities.map((activity) => (
+                    <div key={activity.id} 
+                         className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                         onClick={() => openContentModal(activity)}>
+                      <div className="flex items-start">
+                        <div className="p-2 bg-gray-50 rounded-lg mr-4">
+                          {getActivityIcon(activity.type)}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-semibold">{activity.title}</h3>
+                            <span className="text-xs text-gray-500">{formatDate(activity.createdAt)}</span>
+                          </div>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {activity.type === 'flowchart' && 'Created a flowchart'}
+                            {activity.type === 'summary' && 'Generated a summary'}
+                            {activity.type === 'podcast' && 'Created a podcast'}
+                          </p>
+                          
+                          <div className="mt-2">
+                            <span className="text-xs text-blue-500 hover:underline">
+                              View {activity.type}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-gray-500 text-center py-8">
+                  <p>No recent activities found.</p>
+                  <p className="text-sm mt-2">Try generating a flowchart, summary, or podcast!</p>
+                </div>
+              )}
             </div>
           </div>
           
@@ -340,6 +431,28 @@ function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Content Modal */}
+      {showModal && selectedActivity && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center p-4 border-b">
+              <h2 className="text-xl font-bold">
+                {selectedActivity.type.charAt(0).toUpperCase() + selectedActivity.type.slice(1)}
+              </h2>
+              <button 
+                onClick={closeModal}
+                className="bg-gray-100 p-2 rounded-full hover:bg-gray-200"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="overflow-y-auto">
+              {renderContent(selectedActivity)}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

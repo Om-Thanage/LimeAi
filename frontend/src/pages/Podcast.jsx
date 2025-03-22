@@ -1,4 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
+import { saveContentToFirestore } from '../utils/firebaseHelpers';
 import mammoth from 'mammoth';
 
 // API base URL - change this when deploying
@@ -20,6 +23,13 @@ const Podcast = () => {
   const audioRef = useRef(null);
   const fileInputRef = useRef(null);
   const pollIntervalRef = useRef(null);
+  const [topic, setTopic] = useState('');
+  const [title, setTitle] = useState('');
+  const [podcastContent, setPodcastContent] = useState('');
+  const [podcastAudio, setPodcastAudio] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const { currentUser } = useAuth();
 
   // Effect for handling job polling
   useEffect(() => {
@@ -259,6 +269,59 @@ const Podcast = () => {
       if (pollIntervalRef.current) {
         clearInterval(pollIntervalRef.current);
       }
+    }
+  };
+
+  // Function to generate simplified podcast
+  const generateSimplePodcast = async () => {
+    if (!topic.trim()) {
+      setError('Please enter a topic for your podcast');
+      return;
+    }
+    
+    if (!title.trim()) {
+      setError('Please provide a title for your podcast');
+      return;
+    }
+  
+    setLoading(true);
+    setError('');
+    setSaved(false);
+    setPodcastContent('');
+    setPodcastAudio(null);
+  
+    try {
+      // Call the backend API to generate podcast content
+      const response = await axios.post(`${API_BASE_URL}/api/generate-podcast`, {
+        text: topic,
+        style: 'educational',
+      });
+  
+      if (response.data.podcastContent) {
+        setPodcastContent(response.data.podcastContent);
+        
+        // Save to Firebase if user is logged in
+        if (currentUser) {
+          try {
+            await saveContentToFirestore(
+              currentUser.uid,
+              title,
+              response.data.podcastContent,
+              'podcast'
+            );
+            setSaved(true);
+          } catch (error) {
+            console.error('Error saving podcast:', error);
+          }
+        }
+      } else if (response.data.error) {
+        throw new Error(response.data.error);
+      }
+    } catch (err) {
+      setError(`Error generating podcast: ${err.message}`);
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
