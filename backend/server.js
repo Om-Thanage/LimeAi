@@ -1,10 +1,17 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const axios = require('axios'); // We'll use axios for HTTP requests to DeepSeek API
+const axios = require('axios');
+const { ElevenLabsClient } = require('elevenlabs'); // Import ElevenLabs client
+const multer = require('multer');
+const pdfParse = require('pdf-parse');
+const fs = require('fs');
+const path = require('path');
 
 // Load environment variables
-dotenv.config();
+dotenv.config({
+  path: '.env'
+});
 
 // Initialize Express
 const app = express();
@@ -14,6 +21,22 @@ app.use(express.json());
 // DeepSeek API configuration
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+
+// ElevenLabs API configuration
+const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
+
+// Initialize ElevenLabs client only if API key is available
+let elevenLabsClient = null;
+if (ELEVENLABS_API_KEY) {
+  try {
+    elevenLabsClient = new ElevenLabsClient({
+      apiKey: ELEVENLABS_API_KEY
+    });
+    console.log("ElevenLabs client initialized successfully");
+  } catch (error) {
+    console.error("Error initializing ElevenLabs client:", error.message);
+  }
+}
 
 // Track API usage to avoid hitting rate limits - MODIFIED FOR BETTER RELIABILITY
 const apiUsageTracker = {
@@ -267,8 +290,15 @@ function getBestMatchingSample(concept) {
 // Function to call the DeepSeek API
 async function generateWithDeepSeek(prompt) {
   try {
-    console.log('Calling DeepSeek API with API key:', DEEPSEEK_API_KEY.substring(0, 10) + '...');
+    // Check if API key exists and has the correct format
+    if (!DEEPSEEK_API_KEY || !DEEPSEEK_API_KEY.startsWith('sk-')) {
+      console.error('Invalid DeepSeek API key format - must start with "sk-"');
+      throw new Error('Invalid API key format');
+    }
     
+    console.log('Calling DeepSeek API...');
+    
+    // Ensure the API key is properly formatted with Bearer prefix
     const response = await axios.post(
       DEEPSEEK_API_URL,
       {
@@ -286,7 +316,7 @@ async function generateWithDeepSeek(prompt) {
       {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+          'Authorization': `Bearer ${DEEPSEEK_API_KEY.trim()}` // Properly formatted with Bearer prefix
         },
         timeout: 15000 // 15 second timeout
       }
@@ -454,7 +484,341 @@ app.post('/api/generate-flowchart', async (req, res) => {
   }
 });
 
-// Health check endpoint
+// Text-to-Speech endpoint updated to use ElevenLabs Podcast Studio API
+app.post('/api/text-to-speech', async (req, res) => {
+  try {
+    const { text, style = 'conversational', voiceId } = req.body;
+    
+    if (!text) {
+      return res.status(400).json({ error: 'Text is required' });
+    }
+    
+    if (!ELEVENLABS_API_KEY) {
+      return res.status(500).json({ 
+        error: 'ElevenLabs API key not configured',
+        message: "Text-to-speech functionality is not available. Please configure the ELEVENLABS_API_KEY in the .env file."
+      });
+    }
+    
+    console.log(`Generating podcast with style: ${style}`);
+
+    try {
+      // Configure host and guest voices based on style
+      let hostVoiceId, guestVoiceId;
+      
+      switch (style) {
+        case 'educational':
+          hostVoiceId = "pNInz6obpgDQGcFmaJgB"; // Adam (male)
+          guestVoiceId = "EXAVITQu4vr4xnSDxMaL"; // Sarah (female)
+          break;
+        case 'storytelling':
+          hostVoiceId = "VR6AewLTigWG4xSOukaG"; // Elli (female)
+          guestVoiceId = "XrExE9yKIg1WjnnlVkGX"; // Thomas (male)
+          break;
+        case 'interview':
+          hostVoiceId = "TxGEqnHWrfWFTfGW9XjX"; // Josh (male)
+          guestVoiceId = "21m00Tcm4TlvDq8ikWAM"; // Rachel (female)
+          break;
+        case 'conversational':
+        default:
+          hostVoiceId = "jBpfuIE2acCO8z3wKNLl"; // Clyde (male)
+          guestVoiceId = "t0jbNlBVZ17f02VDIeMI"; // Grace (female)
+          break;
+      }
+
+      // Make direct API call to ElevenLabs Podcast Studio API
+      const response = await axios.post(
+        'https://api.elevenlabs.io/v1/studio/podcasts',
+        {
+          model_id: "21m00Tcm4TlvDq8ikWAM", // Using the podcast model
+          mode: {
+            type: "conversation",
+            conversation: {
+              host_voice_id: hostVoiceId,
+              guest_voice_id: guestVoiceId
+            }
+          },
+          source: {
+            text: text
+          }
+        },
+        {
+          headers: {
+            'xi-api-key': ELEVENLABS_API_KEY,
+            'Content-Type': 'application/json'
+          },
+          responseType: 'stream'
+        }
+      );
+      
+      // Set appropriate headers and stream the response to the client
+      res.setHeader('Content-Type', 'audio/mpeg');
+      res.setHeader('Content-Disposition', `attachment; filename="podcast_${Date.now()}.mp3"`);
+      
+      response.data.pipe(res);
+    } catch (apiError) {
+      console.error("ElevenLabs Podcast API error:", apiError.message);
+      
+      if (apiError.response) {
+        console.error("API Response Status:", apiError.response.status);
+        console.error("API Response Headers:", apiError.response.headers);
+        
+        if (apiError.response.data) {
+          const chunks = [];
+          apiError.response.data.on('data', (chunk) => chunks.push(chunk));
+          apiError.response.data.on('end', () => {
+            const buffer = Buffer.concat(chunks);
+            console.error("API Response Body:", buffer.toString());
+          });
+        }
+      }
+      
+      // Handle authentication errors
+      if (apiError.message.includes('401') || apiError.message.includes('authentication') || apiError.message.includes('unauthorized')) {
+        return res.status(401).json({
+          error: 'Invalid ElevenLabs API key',
+          message: "The ElevenLabs API key is invalid or has expired. Please check your API key and try again."
+        });
+      }
+      
+      throw apiError;
+    }
+    
+  } catch (error) {
+    console.error('Error in podcast generation:', error.message);
+    
+    res.status(500).json({ 
+      error: 'Failed to generate podcast audio',
+      message: error.message
+    });
+  }
+});
+
+// Improve the generate-podcast-content endpoint to format content for the podcast studio
+app.post('/api/generate-podcast-content', async (req, res) => {
+  try {
+    const { text, style = 'conversational' } = req.body;
+    
+    if (!text) {
+      return res.status(400).json({ error: 'Text is required' });
+    }
+
+    console.log(`Received request to generate podcast content in ${style} style`);
+    
+    // Get the appropriate style prompt
+    let stylePrompt = '';
+    switch (style) {
+      case 'educational':
+        stylePrompt = 'Create an educational podcast script with a host explaining concepts clearly and a guest asking clarifying questions.';
+        break;
+      case 'storytelling':
+        stylePrompt = 'Transform this into a narrative storytelling podcast with a main narrator and a secondary voice for characters or commentary.';
+        break;
+      case 'interview':
+        stylePrompt = 'Create an interview-style podcast with a clear host and guest roles. The host should ask questions and the guest should provide expertise.';
+        break;
+      case 'conversational':
+      default:
+        stylePrompt = 'Create a conversational podcast with two speakers discussing topics in a casual, friendly tone.';
+        break;
+    }
+
+    const useApi = apiUsageTracker.shouldUseApi();
+    
+    if (!useApi) {
+      console.log('API usage limit reached or in cooldown. Returning simplified content');
+      const fallbackScript = createFallbackPodcastScript(text.slice(0, 1000), style);
+      return res.json({ 
+        podcastContent: fallbackScript, 
+        message: "Using simplified content. API quota will reset shortly."
+      });
+    }
+
+    try {
+      apiUsageTracker.recordUsage();
+      
+      // Construct the prompt for DeepSeek
+      const prompt = `
+        ${stylePrompt}
+        
+        FORMAT REQUIREMENTS:
+        - Create a script with two speakers: HOST and GUEST
+        - Every line of dialogue should start with "HOST:" or "GUEST:"
+        - Include natural back-and-forth conversation
+        - Keep individual speaking parts relatively short (1-3 sentences each)
+        - Total length should be around 500-800 words
+        
+        The podcast should:
+        1. Have a clear introduction where the HOST welcomes listeners and introduces the topic
+        2. Include proper transitions between subtopics
+        3. Be engaging and conversational
+        4. End with a conclusion and sign-off
+        
+        Here's the document content to transform into a podcast conversation:
+        ---
+        ${text.length > 8000 ? text.slice(0, 8000) + "... (document truncated for length)" : text}
+        ---
+        
+        Generate a conversational podcast script based on this content.
+      `;
+      
+      // Call DeepSeek API
+      const podcastContent = await generateWithDeepSeek(prompt);
+      
+      if (podcastContent) {
+        console.log('Successfully generated podcast content');
+        
+        // Record successful API call
+        apiUsageTracker.recordSuccess();
+        
+        return res.json({ 
+          podcastContent: podcastContent,
+          message: "Custom podcast content generated."
+        });
+      } else {
+        throw new Error('Invalid content received');
+      }
+    } catch (error) {
+      console.error('API Error:', error.message);
+      
+      // Improved rate limit detection
+      if (
+        error.message.includes('rate limit') || 
+        error.message.includes('rate_limit') ||
+        error.message.includes('429') ||
+        error.message.includes('too many requests') ||
+        (error.response && error.response.status === 429)
+      ) {
+        console.log('Rate limit exceeded, using simplified content');
+        apiUsageTracker.recordRateLimit();
+      }
+      
+      // Return simplified content for any error
+      const fallbackScript = createFallbackPodcastScript(text.slice(0, 1000), style);
+      return res.json({ 
+        podcastContent: fallbackScript, 
+        message: "Using simplified content. We'll try the API again soon."
+      });
+    }
+  } catch (error) {
+    console.error('Error in request handler:', error);
+    return res.status(500).json({ error: 'Failed to generate podcast content' });
+  }
+});
+
+// Helper function to create a fallback podcast script
+function createFallbackPodcastScript(text, style) {
+  let hostName, guestName;
+  
+  switch (style) {
+    case 'educational':
+      hostName = "Professor";
+      guestName = "Student";
+      break;
+    case 'storytelling':
+      hostName = "Narrator";
+      guestName = "Character";
+      break;
+    case 'interview':
+      hostName = "Interviewer";
+      guestName = "Expert";
+      break;
+    case 'conversational':
+    default:
+      hostName = "Host";
+      guestName = "Guest";
+      break;
+  }
+  
+  // Create a simple script structure
+  return `HOST: Welcome to our podcast! Today we're going to be discussing an interesting topic.
+
+GUEST: I'm excited to be here and talk about this with you.
+
+HOST: Let's dive right into it. ${text.slice(0, 200)}
+
+GUEST: That's fascinating. Can you tell me more about that?
+
+HOST: Absolutely. ${text.slice(200, 400)}
+
+GUEST: I see. And what are the implications of this?
+
+HOST: Great question. ${text.slice(400, 600)}
+
+GUEST: That makes a lot of sense. Is there anything else our listeners should know?
+
+HOST: Yes, there's one more important point. ${text.slice(600, 800)}
+
+GUEST: Thank you for sharing that insight.
+
+HOST: Thank you for joining us today, and thanks to all our listeners for tuning in. We'll see you next time!`;
+}
+
+// Create uploads directory if it doesn't exist
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Configure file upload storage
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadDir = path.join(__dirname, 'uploads');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB file size limit
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'application/pdf' || 
+        file.mimetype === 'application/msword' || 
+        file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+      cb(null, true);
+    } else {
+      cb(new Error('Unsupported file type. Please upload PDF or Word document.'), false);
+    }
+  }
+});
+
+// API endpoint to extract text from PDF
+app.post('/api/extract-pdf', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    // Check if it's a PDF
+    if (req.file.mimetype === 'application/pdf') {
+      const dataBuffer = fs.readFileSync(req.file.path);
+      const data = await pdfParse(dataBuffer);
+      
+      // Clean up file after extraction
+      fs.unlinkSync(req.file.path);
+      
+      return res.json({ text: data.text });
+    } else {
+      // For non-PDF files (Word docs would be handled client-side)
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ error: 'Unsupported file type. Server can only extract text from PDFs.' });
+    }
+  } catch (error) {
+    console.error('Error extracting text from PDF:', error);
+    // Clean up file if it exists
+    if (req.file && req.file.path && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    res.status(500).json({ error: `Failed to extract text: ${error.message}` });
+  }
+});
+
 app.get('/api/health', (req, res) => {
   return res.json({ 
     status: 'ok',
@@ -466,7 +830,6 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Start the server
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

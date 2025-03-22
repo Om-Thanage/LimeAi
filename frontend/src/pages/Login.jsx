@@ -1,13 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "../config/firebase";
+import { auth, db } from "../config/firebase";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { doc, getDoc } from "firebase/firestore"
+
 
 function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (currentUser) {
+      checkUserStatus(currentUser.uid);
+    }
+  }, [currentUser]);
+
+  const checkUserStatus = async (userId) => {
+    try {
+      const userDocRef = doc(db, 'users', userId);
+      const userDoc = await getDoc(userDocRef);
+      
+      if (userDoc.exists() && userDoc.data().onboarded) {
+        navigate('/dashboard');
+      } else {
+        navigate('/onboarding');
+      }
+    } catch (error) {
+      console.error("Error checking user status:", error);
+    }
+  };
 
   // Handle Google Sign-In
   const handleGoogleLogin = async () => {
@@ -24,11 +49,6 @@ function Login() {
       setLoading(false);
     }
   };
-
-  // If the user is already logged in, don't show the login page
-  if (currentUser) {
-    return null; // Or redirect to another page
-  }
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
