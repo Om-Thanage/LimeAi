@@ -1,13 +1,48 @@
-import React from 'react'
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import { AuthProvider } from "./context/AuthContext"
+import { ProtectedRoute } from "./components/ProtectedRoute"
+import Login from "./pages/Login"
+import Dashboard from "./pages/Dashboard"
+import Onboarding from "./pages/Onboarding"
 import Flowchart from './pages/flowchart'
-import './App.css'
+import "./App.css"
+
+const AppRoutes = () => {
+  return (
+    <AuthProvider>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/register" element={<div>Register Page</div>} />
+        <Route 
+          path="/onboarding" 
+          element={
+            <ProtectedRoute>
+              <Onboarding />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/dashboard" 
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } 
+        />
+        <Route path="/flowchart" element={<ProtectedRoute>
+              <Flowchart />
+            </ProtectedRoute>} />
+      </Routes>
+      
+    </AuthProvider>
+  )
+}
 
 const App = () => {
   return (
     <Router>
-      <div className="app-container">
-        <nav className="navbar">
+      <nav className="navbar">
           <div className="nav-logo">
             <Link to="/">ConceptFlow</Link>
           </div>
@@ -16,23 +51,17 @@ const App = () => {
             <Link to="/flowchart" className="nav-link">Flowchart Generator</Link>
           </div>
         </nav>
-
         <main className="main-content">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/flowchart" element={<Flowchart />} />
-          </Routes>
+          <AppRoutes />
         </main>
-
-        <footer className="footer">
-          <p>© 2024 ConceptFlow - Created at WeHacks</p>
-        </footer>
-      </div>
+      <footer className="footer">
+        <p>© 2024 ConceptFlow - Created at WeHacks</p>
+      </footer>
     </Router>
   )
 }
 
-// Simple Home component
+
 const Home = () => {
   return (
     <div className="home-container">
@@ -44,7 +73,11 @@ const Home = () => {
         </Link>
       </div>
     </div>
-  )
-}
+  )};
 
 export default App
+
+
+
+
+
