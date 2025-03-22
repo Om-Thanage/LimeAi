@@ -1,3 +1,4 @@
+import React from 'react';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
 
@@ -23,6 +24,7 @@ const variantStyles = {
       'ring-slate-700 text-white hover:ring-slate-500 active:ring-slate-700 active:text-slate-400 focus-visible:outline-white',
   },
 };
+
 
 export function Button({ className, ...props }) {
   props.variant ??= 'solid';
