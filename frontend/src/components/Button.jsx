@@ -1,5 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
+import { Link } from 'react-router-dom';
 
 const baseStyles = {
   solid:
@@ -38,7 +39,11 @@ export function Button({
   );
 
   return href ? (
-    <a href={href} className={className} {...props} />
+    href.startsWith('http') ? (
+      <a href={href} className={className} {...props} />
+    ) : (
+      <Link to={href} className={className} {...props} />
+    )
   ) : (
     <button className={className} {...props} />
   );

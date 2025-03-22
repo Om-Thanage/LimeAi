@@ -2,12 +2,13 @@ import React from 'react';
 import {
   Popover,
   PopoverButton,
-  PopoverOverlay,
+  PopoverBackdrop,
   PopoverPanel,
   Transition,
   TransitionChild,
 } from '@headlessui/react';
 import clsx from 'clsx';
+import { Link } from 'react-router-dom';
 
 import { Button } from './Button';
 import { Container } from './Container';
@@ -16,7 +17,7 @@ import { NavLink } from './NavLink';
 
 function MobileNavLink({ href, children }) {
   return (
-    <PopoverButton as="a" href={href} className="block w-full p-2">
+    <PopoverButton as={Link} to={href} className="block w-full p-2">
       {children}
     </PopoverButton>
   );
@@ -67,7 +68,7 @@ function MobileNavigation() {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <PopoverOverlay className="fixed inset-0 bg-slate-300/50" />
+          <PopoverBackdrop className="fixed inset-0 bg-slate-300/50" />
         </TransitionChild>
         <TransitionChild
           enter="duration-150 ease-out"

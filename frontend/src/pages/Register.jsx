@@ -1,19 +1,15 @@
-import Link from 'next/link'
-
-import { Button } from '@/components/Button'
-import { SelectField, TextField } from '@/components/Fields'
-import { Logo } from '@/components/Logo'
-import { SlimLayout } from '@/components/SlimLayout'
-
-export const metadata = {
-  title: 'Sign Up',
-}
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { Button } from '../components/Button'
+import { SelectField, TextField } from '../components/Fields'
+import { Logo } from '../components/Logo'
+import { SlimLayout } from '../components/SlimLayout'
 
 export default function Register() {
   return (
     <SlimLayout>
       <div className="flex">
-        <Link href="/" aria-label="Home">
+        <Link to="/" aria-label="Home">
           <Logo className="h-10 w-auto" />
         </Link>
       </div>
@@ -23,7 +19,7 @@ export default function Register() {
       <p className="mt-2 text-sm text-gray-700">
         Already registered?{' '}
         <Link
-          href="/login"
+          to="/login"
           className="font-medium text-blue-600 hover:underline"
         >
           Sign in
@@ -64,16 +60,6 @@ export default function Register() {
           autoComplete="new-password"
           required
         />
-        <SelectField
-          className="col-span-full"
-          label="How did you hear about us?"
-          name="referral_source"
-        >
-          <option>AltaVista search</option>
-          <option>Super Bowl commercial</option>
-          <option>Our route 34 city bus ad</option>
-          <option>The “Never Use This” podcast</option>
-        </SelectField>
         <div className="col-span-full">
           <Button type="submit" variant="solid" color="blue" className="w-full">
             <span>

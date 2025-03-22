@@ -1,19 +1,15 @@
-import Link from 'next/link'
-
-import { Button } from '@/components/Button'
-import { TextField } from '@/components/Fields'
-import { Logo } from '@/components/Logo'
-import { SlimLayout } from '@/components/SlimLayout'
-
-export const metadata = {
-  title: 'Sign In',
-}
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { Button } from '../components/Button'
+import { TextField } from '../components/Fields'
+import { Logo } from '../components/Logo'
+import { SlimLayout } from '../components/SlimLayout'
 
 export default function Login() {
   return (
     <SlimLayout>
       <div className="flex">
-        <Link href="/" aria-label="Home">
+        <Link to="/" aria-label="Home">
           <Logo className="h-10 w-auto" />
         </Link>
       </div>
@@ -21,9 +17,9 @@ export default function Login() {
         Sign in to your account
       </h2>
       <p className="mt-2 text-sm text-gray-700">
-        Don’t have an account?{' '}
+        Don't have an account?{' '}
         <Link
-          href="/register"
+          to="/register"
           className="font-medium text-blue-600 hover:underline"
         >
           Sign up

@@ -1,14 +1,14 @@
-import Link from 'next/link'
-
-import { Button } from '@/components/Button'
-import { Logo } from '@/components/Logo'
-import { SlimLayout } from '@/components/SlimLayout'
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { Button } from '../components/Button'
+import { Logo } from '../components/Logo'
+import { SlimLayout } from '../components/SlimLayout'
 
 export default function NotFound() {
   return (
     <SlimLayout>
       <div className="flex">
-        <Link href="/" aria-label="Home">
+        <Link to="/" aria-label="Home">
           <Logo className="h-10 w-auto" />
         </Link>
       </div>
@@ -17,7 +17,7 @@ export default function NotFound() {
         Page not found
       </h1>
       <p className="mt-3 text-sm text-gray-700">
-        Sorry, we couldn’t find the page you’re looking for.
+        Sorry, we couldn't find the page you're looking for.
       </p>
       <Button href="/" className="mt-10">
         Go back home
