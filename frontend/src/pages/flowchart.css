@@ -1,0 +1,229 @@
+/* Flowchart Page Styles */
+.flowchart-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+  text-align: center;
+}
+
+.description {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #555;
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 2rem;
+}
+
+.input-section {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.concept-input {
+  width: 100%;
+  min-height: 120px;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  resize: vertical;
+  font-family: inherit;
+  transition: border-color 0.3s;
+}
+
+.concept-input:focus {
+  outline: none;
+  border-color: #6d28d9;
+  box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.1);
+}
+
+.buttons {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.generate-btn, .sample-btn {
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.generate-btn {
+  background-color: #6d28d9;
+  color: white;
+  flex: 3;
+}
+
+.generate-btn:hover {
+  background-color: #5b21b6;
+}
+
+.generate-btn:disabled {
+  background-color: #a78bda;
+  cursor: not-allowed;
+}
+
+.sample-btn {
+  background-color: #e5e7eb;
+  color: #4b5563;
+  flex: 1;
+}
+
+.sample-btn:hover {
+  background-color: #d1d5db;
+}
+
+.error {
+  color: #dc2626;
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+.flowchart-result {
+  background-color: white;
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-top: 2rem;
+}
+
+.flowchart-result h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+  text-align: center;
+}
+
+.mermaid-container {
+  margin: 2rem 0;
+  display: flex;
+  justify-content: center;
+  overflow-x: auto;
+  background-color: #f9fafb;
+  padding: 2rem;
+  border-radius: 8px;
+}
+
+.flowchart-code {
+  margin-top: 2rem;
+  background-color: #f1f5f9;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.flowchart-code h3 {
+  background-color: #e2e8f0;
+  padding: 0.75rem 1.5rem;
+  margin: 0;
+  font-size: 1rem;
+  color: #475569;
+}
+
+.flowchart-code pre {
+  padding: 1.5rem;
+  margin: 0;
+  overflow-x: auto;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #334155;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .flowchart-container {
+    padding: 1rem;
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+  
+  .input-section, .flowchart-result {
+    padding: 1.5rem;
+  }
+  
+  .buttons {
+    flex-direction: column;
+  }
+  
+  .generate-btn, .sample-btn {
+    width: 100%;
+  }
+}
+
+/* Ensure Mermaid diagrams are visible and properly styled */
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Add animation for loading state */
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.generate-btn:disabled {
+  animation: pulse 1.5s infinite;
+}
+
+/* Fallback message styling */
+.fallback-message {
+  background-color: #fef9c3;
+  border-left: 4px solid #eab308;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0 4px 4px 0;
+}
+
+.fallback-message p {
+  color: #854d0e;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* API information note */
+.api-note {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-top: 1rem;
+  font-style: italic;
+  text-align: center;
+}
+
+/* Info message styling for cached results */
+.info-message {
+  background-color: #e0f2fe;
+  border-left: 4px solid #0ea5e9;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0 4px 4px 0;
+}
+
+.info-message p {
+  color: #075985;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
