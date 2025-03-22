@@ -1,0 +1,247 @@
+.login-container {
+    min-height: 100vh;
+    display: flex;
+  }
+  
+  .login-illustration {
+    display: none;
+  }
+  
+  .login-gradient {
+    background: linear-gradient(to right, #3b82f6, #4f46e5);
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .login-content {
+    max-width: 28rem;
+    text-align: center;
+    padding: 0 3rem;
+  }
+  
+  .login-title {
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: white;
+  }
+  
+  .login-subtitle {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    color: white;
+  }
+  
+  .login-features {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .login-feature-item {
+    display: flex;
+    align-items: center;
+  }
+  
+  .login-feature-icon {
+    flex-shrink: 0;
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 0.5rem;
+    border-radius: 9999px;
+  }
+  
+  .login-icon {
+    height: 1.5rem;
+    width: 1.5rem;
+    color: white;
+  }
+  
+  .login-feature-text {
+    margin-left: 0.75rem;
+    font-size: 1.125rem;
+    color: white;
+  }
+  
+  .login-form-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    background-color: #f9fafb;
+  }
+  
+  .login-form-content {
+    max-width: 28rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .login-header {
+    margin-bottom: 2rem;
+  }
+  
+  .login-mobile-logo {
+    font-size: 2.25rem;
+    font-weight: 800;
+    text-align: center;
+    color: #111827;
+  }
+  
+  .login-heading {
+    margin-top: 1.5rem;
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: #111827;
+    text-align: center;
+  }
+  
+  .login-subheading {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #4b5563;
+    text-align: center;
+  }
+  
+  .login-google-btn {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    background-color: white;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: all 150ms ease-in-out;
+    transform: translateY(0);
+    cursor: pointer;
+  }
+  
+  .login-google-btn:hover {
+    background-color: #f9fafb;
+    transform: translateY(-0.25rem);
+  }
+  
+  .login-google-btn:focus {
+    outline: none;
+    ring: 2px;
+    ring-offset: 2px;
+    ring-color: #3b82f6;
+  }
+  
+  .login-google-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  .login-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .login-spinner {
+    animation: spin 1s linear infinite;
+    margin-right: 0.75rem;
+    margin-left: -0.25rem;
+    height: 1.25rem;
+    width: 1.25rem;
+    color: #3b82f6;
+  }
+  
+  .login-spinner-circle {
+    opacity: 0.25;
+  }
+  
+  .login-spinner-path {
+    opacity: 0.75;
+  }
+  
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .login-btn-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .login-google-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-right: 0.5rem;
+  }
+  
+  .login-error {
+    background-color: #fef2f2;
+    color: #ef4444;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    text-align: center;
+    border: 1px solid #fee2e2;
+    margin-top: 1rem;
+  }
+  
+  .login-signup-link {
+    text-align: center;
+    margin-top: 1rem;
+  }
+  
+  .login-signup-text {
+    font-size: 0.875rem;
+    color: #4b5563;
+  }
+  
+  .login-link {
+    font-weight: 500;
+    color: #2563eb;
+    transition: color 150ms;
+  }
+  
+  .login-link:hover {
+    color: #3b82f6;
+    text-decoration: underline;
+  }
+  
+  .login-footer {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+  }
+  
+  .login-copyright {
+    text-align: center;
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+  
+  /* Media Queries */
+  @media (min-width: 1024px) {
+    .login-illustration {
+      display: flex;
+      width: 50%;
+    }
+    
+    .login-form-container {
+      width: 50%;
+    }
+    
+    .login-mobile-logo {
+      display: none;
+    }
+  }

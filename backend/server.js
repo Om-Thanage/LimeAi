@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const axios = require('axios');
-const { ElevenLabsClient } = require('elevenlabs'); // Import ElevenLabs client
 const multer = require('multer');
 const pdfParse = require('pdf-parse');
 const fs = require('fs');
@@ -22,21 +21,9 @@ app.use(express.json());
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
 
-// ElevenLabs API configuration
-const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
-
-// Initialize ElevenLabs client only if API key is available
-let elevenLabsClient = null;
-if (ELEVENLABS_API_KEY) {
-  try {
-    elevenLabsClient = new ElevenLabsClient({
-      apiKey: ELEVENLABS_API_KEY
-    });
-    console.log("ElevenLabs client initialized successfully");
-  } catch (error) {
-    console.error("Error initializing ElevenLabs client:", error.message);
-  }
-}
+// PlayDialog API configuration
+const PLAYDIALOG_USER_ID = process.env.PLAYDIALOG_USER_ID;
+const PLAYDIALOG_SECRET_KEY = process.env.PLAYDIALOG_SECRET_KEY;
 
 // Track API usage to avoid hitting rate limits - MODIFIED FOR BETTER RELIABILITY
 const apiUsageTracker = {
@@ -484,100 +471,102 @@ app.post('/api/generate-flowchart', async (req, res) => {
   }
 });
 
-// Text-to-Speech endpoint updated to use ElevenLabs Podcast Studio API
+// Text-to-Speech endpoint updated to use PlayDialog API
 app.post('/api/text-to-speech', async (req, res) => {
   try {
-    const { text, style = 'conversational', voiceId } = req.body;
+    const { text, style = 'conversational' } = req.body;
     
     if (!text) {
       return res.status(400).json({ error: 'Text is required' });
     }
     
-    if (!ELEVENLABS_API_KEY) {
+    if (!PLAYDIALOG_USER_ID || !PLAYDIALOG_SECRET_KEY) {
       return res.status(500).json({ 
-        error: 'ElevenLabs API key not configured',
-        message: "Text-to-speech functionality is not available. Please configure the ELEVENLABS_API_KEY in the .env file."
+        error: 'PlayDialog API credentials not configured',
+        message: "Text-to-speech functionality is not available. Please configure the PLAYDIALOG_USER_ID and PLAYDIALOG_SECRET_KEY in the .env file."
       });
     }
     
-    console.log(`Generating podcast with style: ${style}`);
+    console.log(`Generating podcast with PlayDialog API, style: ${style}`);
 
     try {
-      // Configure host and guest voices based on style
-      let hostVoiceId, guestVoiceId;
+      // Configure voices based on style
+      let voice1, voice2;
+      let turnPrefix = 'HOST:';
+      let turnPrefix2 = 'GUEST:';
       
       switch (style) {
         case 'educational':
-          hostVoiceId = "pNInz6obpgDQGcFmaJgB"; // Adam (male)
-          guestVoiceId = "EXAVITQu4vr4xnSDxMaL"; // Sarah (female)
+          voice1 = 's3://voice-cloning-zero-shot/baf1ef41-36b6-428c-9bdf-50ba54682bd8/original/manifest.json'; // Male professor
+          voice2 = 's3://voice-cloning-zero-shot/e040bd1b-f190-4bdb-83f0-75ef85b18f84/original/manifest.json'; // Female student
           break;
         case 'storytelling':
-          hostVoiceId = "VR6AewLTigWG4xSOukaG"; // Elli (female)
-          guestVoiceId = "XrExE9yKIg1WjnnlVkGX"; // Thomas (male)
+          voice1 = 's3://voice-cloning-zero-shot/e040bd1b-f190-4bdb-83f0-75ef85b18f84/original/manifest.json'; // Female narrator
+          voice2 = 's3://voice-cloning-zero-shot/baf1ef41-36b6-428c-9bdf-50ba54682bd8/original/manifest.json'; // Male character
           break;
         case 'interview':
-          hostVoiceId = "TxGEqnHWrfWFTfGW9XjX"; // Josh (male)
-          guestVoiceId = "21m00Tcm4TlvDq8ikWAM"; // Rachel (female)
+          voice1 = 's3://voice-cloning-zero-shot/baf1ef41-36b6-428c-9bdf-50ba54682bd8/original/manifest.json'; // Male interviewer
+          voice2 = 's3://voice-cloning-zero-shot/e040bd1b-f190-4bdb-83f0-75ef85b18f84/original/manifest.json'; // Female expert
           break;
         case 'conversational':
         default:
-          hostVoiceId = "jBpfuIE2acCO8z3wKNLl"; // Clyde (male)
-          guestVoiceId = "t0jbNlBVZ17f02VDIeMI"; // Grace (female)
+          voice1 = 's3://voice-cloning-zero-shot/baf1ef41-36b6-428c-9bdf-50ba54682bd8/original/manifest.json'; // Default male
+          voice2 = 's3://voice-cloning-zero-shot/e040bd1b-f190-4bdb-83f0-75ef85b18f84/original/manifest.json'; // Default female
           break;
       }
 
-      // Make direct API call to ElevenLabs Podcast Studio API
+      // Make API call to PlayDialog to initiate podcast generation
       const response = await axios.post(
-        'https://api.elevenlabs.io/v1/studio/podcasts',
+        'https://api.play.ai/api/v1/tts/',
         {
-          model_id: "21m00Tcm4TlvDq8ikWAM", // Using the podcast model
-          mode: {
-            type: "conversation",
-            conversation: {
-              host_voice_id: hostVoiceId,
-              guest_voice_id: guestVoiceId
-            }
-          },
-          source: {
-            text: text
-          }
+          model: 'PlayDialog',
+          text: text,
+          voice: voice1,
+          voice2: voice2,
+          turnPrefix: turnPrefix,
+          turnPrefix2: turnPrefix2,
+          outputFormat: 'mp3'
         },
         {
           headers: {
-            'xi-api-key': ELEVENLABS_API_KEY,
+            'X-USER-ID': PLAYDIALOG_USER_ID,
+            'Authorization': PLAYDIALOG_SECRET_KEY,
             'Content-Type': 'application/json'
-          },
-          responseType: 'stream'
+          }
         }
       );
       
-      // Set appropriate headers and stream the response to the client
-      res.setHeader('Content-Type', 'audio/mpeg');
-      res.setHeader('Content-Disposition', `attachment; filename="podcast_${Date.now()}.mp3"`);
-      
-      response.data.pipe(res);
+      if (response.data && response.data.id) {
+        const jobId = response.data.id;
+        console.log(`PlayDialog job initiated with ID: ${jobId}`);
+        
+        // Return job ID to client for polling
+        return res.json({
+          jobId: jobId,
+          message: "Podcast generation initiated successfully. Use the jobId to check status.",
+          status: "processing"
+        });
+      } else {
+        console.error("Unexpected API response format:", response.data);
+        throw new Error("Invalid response from PlayDialog API");
+      }
     } catch (apiError) {
-      console.error("ElevenLabs Podcast API error:", apiError.message);
+      console.error("PlayDialog API error:", apiError.message);
       
       if (apiError.response) {
         console.error("API Response Status:", apiError.response.status);
         console.error("API Response Headers:", apiError.response.headers);
         
         if (apiError.response.data) {
-          const chunks = [];
-          apiError.response.data.on('data', (chunk) => chunks.push(chunk));
-          apiError.response.data.on('end', () => {
-            const buffer = Buffer.concat(chunks);
-            console.error("API Response Body:", buffer.toString());
-          });
+          console.error("API Response Body:", JSON.stringify(apiError.response.data));
         }
       }
       
       // Handle authentication errors
       if (apiError.message.includes('401') || apiError.message.includes('authentication') || apiError.message.includes('unauthorized')) {
         return res.status(401).json({
-          error: 'Invalid ElevenLabs API key',
-          message: "The ElevenLabs API key is invalid or has expired. Please check your API key and try again."
+          error: 'Invalid PlayDialog API credentials',
+          message: "The PlayDialog credentials are invalid or have expired. Please check your configuration and try again."
         });
       }
       
@@ -589,6 +578,125 @@ app.post('/api/text-to-speech', async (req, res) => {
     
     res.status(500).json({ 
       error: 'Failed to generate podcast audio',
+      message: error.message
+    });
+  }
+});
+
+// Endpoint to check PlayDialog job status
+app.get('/api/podcast-status/:jobId', async (req, res) => {
+  try {
+    const { jobId } = req.params;
+    
+    if (!jobId) {
+      return res.status(400).json({ error: 'Job ID is required' });
+    }
+    
+    if (!PLAYDIALOG_USER_ID || !PLAYDIALOG_SECRET_KEY) {
+      return res.status(500).json({ 
+        error: 'PlayDialog API credentials not configured',
+        message: "Text-to-speech functionality is not available. Please configure the PLAYDIALOG_USER_ID and PLAYDIALOG_SECRET_KEY in the .env file."
+      });
+    }
+    
+    console.log(`Checking PlayDialog job status for ID: ${jobId}`);
+    
+    try {
+      // Make API call to check job status
+      const response = await axios.get(
+        `https://api.play.ai/api/v1/tts/${jobId}`,
+        {
+          headers: {
+            'X-USER-ID': PLAYDIALOG_USER_ID,
+            'Authorization': PLAYDIALOG_SECRET_KEY
+          }
+        }
+      );
+      
+      if (response.data && response.data.output) {
+        const status = response.data.output.status;
+        
+        if (status === 'COMPLETED' && response.data.output.url) {
+          // Job is complete, return the audio URL
+          return res.json({
+            status: 'completed',
+            audioUrl: response.data.output.url,
+            message: "Podcast generation completed successfully."
+          });
+        } else if (status === 'FAILED') {
+          // Job failed
+          return res.status(500).json({
+            status: 'failed',
+            message: "Podcast generation failed. Please try again."
+          });
+        } else {
+          // Job is still processing
+          return res.json({
+            status: 'processing',
+            message: "Podcast is still being generated. Please check again later."
+          });
+        }
+      } else {
+        console.error("Unexpected API response format:", response.data);
+        throw new Error("Invalid response from PlayDialog API");
+      }
+    } catch (apiError) {
+      console.error("PlayDialog Status API error:", apiError.message);
+      
+      if (apiError.response) {
+        console.error("API Response Status:", apiError.response.status);
+        
+        if (apiError.response.status === 404) {
+          return res.status(404).json({
+            error: 'Job not found',
+            message: "The specified job ID does not exist or has expired."
+          });
+        }
+      }
+      
+      throw apiError;
+    }
+  } catch (error) {
+    console.error('Error checking PlayDialog job status:', error.message);
+    
+    res.status(500).json({ 
+      error: 'Failed to check podcast status',
+      message: error.message
+    });
+  }
+});
+
+// Endpoint to download audio from PlayDialog URL and stream to client
+app.get('/api/podcast-audio', async (req, res) => {
+  try {
+    const { url } = req.query;
+    
+    if (!url) {
+      return res.status(400).json({ error: 'Audio URL is required' });
+    }
+    
+    console.log(`Downloading PlayDialog audio from URL: ${url}`);
+    
+    try {
+      // Download the audio file
+      const response = await axios.get(url, {
+        responseType: 'stream'
+      });
+      
+      // Set appropriate headers and stream the response to the client
+      res.setHeader('Content-Type', 'audio/mpeg');
+      res.setHeader('Content-Disposition', `attachment; filename="podcast_${Date.now()}.mp3"`);
+      
+      response.data.pipe(res);
+    } catch (apiError) {
+      console.error("PlayDialog Audio Download error:", apiError.message);
+      throw apiError;
+    }
+  } catch (error) {
+    console.error('Error downloading PlayDialog audio:', error.message);
+    
+    res.status(500).json({ 
+      error: 'Failed to download podcast audio',
       message: error.message
     });
   }

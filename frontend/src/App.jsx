@@ -16,6 +16,7 @@ const App = () => {
   return (
     <Router>
       <AuthProvider>
+        <ConditionalNavigation />
         <main className="main-content">
           <AppRoutes />
         </main>
@@ -27,7 +28,43 @@ const App = () => {
   )
 }
 
+const ConditionalNavigation = () => {
+  const location = useLocation();
+  // Don't show navbar on root route
+  if (location.pathname === '/') {
+    return null;
+  }
+  return <Navigation />;
+};
 
+// Navigation component moved here, inside the Router context
+const Navigation = () => {
+  const { currentUser, logout } = useAuth();
+  return (
+    <nav className="navbar">
+      <div className="nav-logo">
+        <Link to="/">ConceptFlow</Link>
+      </div>
+      <div className="nav-links">
+        <Link to="/" className="nav-link">Home</Link>
+        <Link to="/flowchart" className="nav-link">Flowchart Generator</Link>
+        {currentUser && (
+          <>
+            <span className="text-gray-700">
+              {currentUser?.displayName || currentUser?.email}
+            </span>
+            <button
+              onClick={logout}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            >
+              Logout
+            </button>
+          </>
+        )}
+      </div>
+    </nav>
+  );
+};
 
 const AppRoutes = () => {
   return (

@@ -1,5 +1,4 @@
-import React, { useState, useRef } from 'react';
-// Removed unused imports
+import React, { useState, useRef, useEffect } from 'react';
 import mammoth from 'mammoth';
 
 // API base URL - change this when deploying
@@ -16,8 +15,73 @@ const Podcast = () => {
   const [step, setStep] = useState(1); // 1: Upload, 2: Generate, 3: Results
   const [podcastStyle, setPodcastStyle] = useState('conversational');
   const [generationProgress, setGenerationProgress] = useState(0);
+  const [jobId, setJobId] = useState(null);
+  const [isPolling, setIsPolling] = useState(false);
   const audioRef = useRef(null);
   const fileInputRef = useRef(null);
+  const pollIntervalRef = useRef(null);
+
+  // Effect for handling job polling
+  useEffect(() => {
+    if (jobId && isPolling) {
+      // Set up polling interval
+      pollIntervalRef.current = setInterval(checkJobStatus, 3000);
+      
+      // Cleanup function
+      return () => {
+        if (pollIntervalRef.current) {
+          clearInterval(pollIntervalRef.current);
+        }
+      };
+    }
+  }, [jobId, isPolling]);
+
+  const checkJobStatus = async () => {
+    if (!jobId) return;
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/podcast-status/${jobId}`);
+      
+      if (!response.ok) {
+        throw new Error(`Error checking status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.status === 'completed' && data.audioUrl) {
+        // Job completed successfully
+        clearInterval(pollIntervalRef.current);
+        setIsPolling(false);
+        setGenerationProgress(100);
+        setAudioUrl(data.audioUrl);
+        setStep(3);
+        setIsGenerating(false);
+        
+        // Automatically play the audio if desired
+        if (audioRef.current) {
+          audioRef.current.play();
+        }
+      } else if (data.status === 'failed') {
+        // Job failed
+        clearInterval(pollIntervalRef.current);
+        setIsPolling(false);
+        setIsGenerating(false);
+        setError(`Failed to generate podcast: ${data.message}`);
+      } else {
+        // Still processing - update progress indication 
+        setGenerationProgress(prev => Math.min(prev + 5, 90));
+      }
+    } catch (err) {
+      console.error('Error checking job status:', err);
+      // Don't stop polling on temporary errors
+      if (err.message.includes('404') || err.message.includes('not found')) {
+        clearInterval(pollIntervalRef.current);
+        setIsPolling(false);
+        setIsGenerating(false);
+        setError('Podcast generation job not found. Please try again.');
+      }
+    }
+  };
 
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files[0];
@@ -118,19 +182,8 @@ const Podcast = () => {
     setAudioUrl(null);
     setGenerationProgress(10); // Start progress
 
-    // Simulate progress for generation steps
-    const progressInterval = setInterval(() => {
-      setGenerationProgress(prev => {
-        if (prev >= 90) {
-          clearInterval(progressInterval);
-          return 90;
-        }
-        return prev + 10;
-      });
-    }, 1500);
-    
     try {
-      // First, generate optimized podcast content using DeepSeek
+      // First, generate optimized podcast content
       const contentResponse = await fetch(`${API_BASE_URL}/api/generate-podcast-content`, {
         method: 'POST',
         headers: {
@@ -149,9 +202,9 @@ const Podcast = () => {
       const contentData = await contentResponse.json();
       const podcastText = contentData.podcastContent;
       
-      setGenerationProgress(50); // Update progress after content generation
+      setGenerationProgress(40); // Update progress after content generation
       
-      // Then, convert to speech using ElevenLabs Podcast Studio API
+      // Then, convert to speech using PlayDialog API
       const response = await fetch(`${API_BASE_URL}/api/text-to-speech`, {
         method: 'POST',
         headers: {
@@ -177,24 +230,17 @@ const Podcast = () => {
         throw new Error(errorMessage);
       }
       
-      // Create a blob from the audio data
-      const audioBlob = await response.blob();
+      const data = await response.json();
       
-      // Create a URL for the blob
-      const url = URL.createObjectURL(audioBlob);
-      setAudioUrl(url);
-      setStep(3);
-      
-      // Clear progress interval and set to 100%
-      clearInterval(progressInterval);
-      setGenerationProgress(100);
-      
-      // Automatically play the audio if desired
-      if (audioRef.current) {
-        audioRef.current.play();
+      if (data.jobId) {
+        // Begin polling for job completion
+        setJobId(data.jobId);
+        setIsPolling(true);
+        setGenerationProgress(50); // Update progress to indicate processing has started
+      } else {
+        throw new Error('No job ID returned from the server');
       }
     } catch (err) {
-      clearInterval(progressInterval);
       console.error('Error generating podcast:', err);
       
       let userErrorMessage = err.message;
@@ -207,8 +253,12 @@ const Podcast = () => {
       }
       
       setError(userErrorMessage);
-    } finally {
       setIsGenerating(false);
+      setIsPolling(false);
+      
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+      }
     }
   };
 
@@ -220,6 +270,13 @@ const Podcast = () => {
     setStep(1);
     setUploadProgress(0);
     setGenerationProgress(0);
+    setJobId(null);
+    setIsPolling(false);
+    
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+    }
+    
     // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -525,14 +582,13 @@ const Podcast = () => {
                   Create Another Podcast
                 </button>
               </div>
-            </div>
             
-            <div className="text-center">
+            <div className="text-center"></div>
               <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
                 <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
-                Powered by ElevenLabs AI
+                Powered by PlayDialog AI
               </div>
               <p className="text-sm text-gray-600 mt-2">
                 Your professional multi-voice podcast has been created using AI technology.
