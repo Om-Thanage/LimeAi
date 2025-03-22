@@ -11,6 +11,7 @@ import { useAuth } from './context/AuthContext'
 import Podcast from "./pages/Podcast"
 import App2  from "./pages/App2"
 import Summary from "./pages/Summary"
+import Whiteboard from "./pages/Whiteboard"
 
 // Move Navigation component definition into the App component
 const App = () => {
@@ -30,6 +31,7 @@ const App = () => {
 const AppRoutes = () => {
   return (
     <Routes>
+      <Route path="/whiteboard" element={<Whiteboard />} />
       <Route path="/summary" element={<Summary />} />
       <Route path="/login" element={<Login />} />
       <Route path="/" element={<App2 />} />
