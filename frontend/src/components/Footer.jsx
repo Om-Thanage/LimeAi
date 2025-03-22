@@ -1,18 +1,19 @@
 import React from 'react';
 import { Container } from './Container';
 import { NavLink } from './NavLink';
+import limeai from '../images/LimeAi.svg';
 
 export function Footer() {
   return (
     <footer className="bg-slate-50">
       <Container>
         <div className="py-16">
-          <img src="/images/LimeAi.svg" alt="LimeAi Logo" className="mx-auto h-5 w-auto" />
+          <img src={limeai} alt="LimeAi Logo" className="mx-auto h-3/4 w-auto" />
           <nav className="mt-10 text-sm" aria-label="quick links">
-            <div className="-my-1 flex justify-center gap-x-6">
-              <NavLink href="#">Dream</NavLink>
-              <NavLink href="#">Develop</NavLink>
-              <NavLink href="#">Disrupt</NavLink>
+            <div className="-my-1 flex justify-center gap-x-6 text-9xl font-bold">
+              <NavLink href="#features">Dream</NavLink>
+              <NavLink href="#testimonials">Develop</NavLink>
+              <NavLink href="#pricing">Disrupt</NavLink>
             </div>
           </nav>
         </div>
