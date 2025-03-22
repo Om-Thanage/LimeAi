@@ -1,6 +1,6 @@
 import React from 'react';
-import clsx from 'clsx';
 import { Link } from 'react-router-dom';
+import clsx from 'clsx';
 
 const baseStyles = {
   solid:
@@ -25,26 +25,24 @@ const variantStyles = {
   },
 };
 
-export function Button({
-  variant = 'solid',
-  color = 'slate',
-  className,
-  href,
-  ...props
-}) {
+
+export function Button({ className, ...props }) {
+  props.variant ??= 'solid';
+  props.color ??= 'slate';
+
   className = clsx(
-    baseStyles[variant],
-    variantStyles[variant][color],
-    className
+    baseStyles[props.variant],
+    props.variant === 'outline'
+      ? variantStyles.outline[props.color]
+      : props.variant === 'solid'
+        ? variantStyles.solid[props.color]
+        : undefined,
+    className,
   );
 
-  return href ? (
-    href.startsWith('http') ? (
-      <a href={href} className={className} {...props} />
-    ) : (
-      <Link to={href} className={className} {...props} />
-    )
-  ) : (
+  return typeof props.href === 'undefined' ? (
     <button className={className} {...props} />
+  ) : (
+    <Link to={props.href} className={className} {...props} />
   );
 }
