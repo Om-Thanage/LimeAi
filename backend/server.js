@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 // DeepSeek API configuration
-const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY || 'sk-2ad4f1505572421798aa960c446a1d2a';
+const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
 
 // Track API usage to avoid hitting rate limits - MODIFIED FOR BETTER RELIABILITY
