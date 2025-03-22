@@ -45,6 +45,50 @@ const Chatbot = ({ summarizedContent }) => {
     setChatHistory(updatedHistory);
     setInputValue('');
     setLoading(true);
+
+
+    {/* deepseekr1free
+      
+      try {
+  const response = await axios.post(
+    "https://openrouter.ai/api/v1/chat/completions",
+    {
+      model: "deepseek/deepseek-r1:free",
+      messages: [
+        {
+          role: "system",
+          content: `You are a helpful study assistant chatbot. 
+                   Answer questions ONLY based on the summarized notes provided below.
+                   If the answer isn't in the notes, say "I don't see information about that in the notes."
+                   Keep answers concise but thorough.
+                   Use bullet points for complex answers.
+                   Here are the summarized notes:\n\n${summarizedContent}`,
+        },
+        {
+          role: "user",
+          content: userMessage,
+        },
+      ],
+      temperature: 0.2,
+      max_tokens: 1024,
+    },
+    {
+      headers: {
+        "Authorization": `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
+        "HTTP-Referer": "<YOUR_SITE_URL>", // Optional for OpenRouter ranking
+        "X-Title": "<YOUR_SITE_NAME>", // Optional for OpenRouter ranking
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  console.log(response.data);
+} catch (error) {
+  console.error("Error fetching AI response:", error);
+}
+
+
+      */}
     
     try {
       const response = await axios.post(

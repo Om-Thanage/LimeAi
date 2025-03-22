@@ -62,6 +62,47 @@ const Summary = () => {
     setLoading(true);
     setError('');
 
+    {/*r1 free
+      
+      try {
+  const apiUrl = "https://openrouter.ai/api/v1/chat/completions";
+
+  const response = await axios.post(
+    apiUrl,
+    {
+      model: "deepseek/deepseek-r1:free",
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a helpful assistant that converts unstructured notes into a well-organized summary. Structure the content with clear sections and concise bullet points. Maintain essential details while ensuring readability. Use plain text formatting for a clean and professional appearance.",
+        },
+        {
+          role: "user",
+          content: fileContent,
+        },
+      ],
+      temperature: 0.3,
+      max_tokens: 1500,
+    },
+    {
+      headers: {
+        "Authorization": `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
+        "HTTP-Referer": "<YOUR_SITE_URL>", // Optional for OpenRouter ranking
+        "X-Title": "<YOUR_SITE_NAME>", // Optional for OpenRouter ranking
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  console.log(response.data);
+} catch (error) {
+  console.error("Error fetching AI response:", error);
+}
+
+
+      */}
+
     try {
       const apiUrl = 'https://api.deepseek.com/v1/chat/completions';
 
@@ -73,7 +114,7 @@ const Summary = () => {
             {
               role: 'system',
               content:
-                'You are a helpful assistant that converts unstructured notes into a well-structured summary. Create clear sections with headings, bullet points, and keep essential details. Format in Markdown.',
+                'You are a helpful assistant that converts unstructured notes into a well-organized summary. Structure the content with clear sections and concise bullet points. Maintain essential details while ensuring readability. Use plain text formatting for a clean and professional appearance.',
             },
             {
               role: 'user',
