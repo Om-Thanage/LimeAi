@@ -27,7 +27,9 @@ function Dashboard() {
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [activeComponent, setActiveComponent] = useState(null);
-
+  
+  // No need for hoverDay state since we're removing the heatmap
+  
   const handleMouseEnter = (item) => {
     setHoveredItem(item);
   };
@@ -156,6 +158,10 @@ function Dashboard() {
     setActiveComponent(null);
   };
 
+  // Generate placeholder streak data (in a real app, this would come from your backend)
+  const currentStreak = 7;
+  const longestStreak = 14;
+  const totalDays = 42;
   
   const renderContent = () => {
     if (activeComponent) {
@@ -304,77 +310,49 @@ function Dashboard() {
             </div>
           </div>
           
-          {/* Learning activity chart */}
-          <div>
-            <div className="flex items-center mb-4">
-              <h2 className="text-xl font-bold flex-1">Learning activity</h2>
+          {/* Learning Streak - Modified Section */}
+          <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+            <div className="flex items-center mb-6">
+              <h2 className="text-xl font-bold flex-1">Learning Streak</h2>
               <div className="flex items-center text-sm">
-                <span className="flex items-center mr-4">
-                  <span className="w-2 h-2 bg-blue-700 rounded-full mr-1"></span>
-                  Materials
-                </span>
-                <span className="flex items-center">
-                  <span className="w-2 h-2 bg-pink-400 rounded-full mr-1"></span>
-                  Exams
-                </span>
+                <Calendar className="w-4 h-4 mr-1" />
+                <span className="text-gray-500">3rd semester</span>
+                <ChevronDown className="w-4 h-4 ml-1" />
               </div>
             </div>
             
-            <div className="flex items-center text-sm text-gray-500 mb-2">
-              <Calendar className="w-4 h-4 mr-1" />
-              3rd semester
-              <ChevronDown className="w-4 h-4 ml-1" />
-            </div>
-            
-            <div className="h-48 relative">
-              {/* Activity chart */}
-              <div className="absolute top-2 right-16 bg-purple-700 text-white rounded-lg px-2 py-1 text-xs">
-                12 hours
+            {/* Streak stats - Cool redesign */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 text-center shadow-sm">
+                <div className="text-3xl font-bold text-green-600 mb-1">{currentStreak}</div>
+                <div className="text-xs text-gray-600 font-medium">Current Streak</div>
+                <div className="mt-2 w-full h-1 bg-green-200 rounded-full">
+                  <div className="h-1 bg-green-500 rounded-full" style={{ width: `${(currentStreak/longestStreak)*100}%` }}></div>
+                </div>
               </div>
               
-              {/* Placeholder for chart data */}
-              <div className="absolute bottom-0 left-0 right-0 h-40">
-                <div className="relative h-full">
-                  <div className="absolute left-0 top-0 right-0 bottom-0 flex flex-col justify-between text-xs text-gray-500">
-                    <div>100</div>
-                    <div>80</div>
-                    <div>60</div>
-                    <div>40</div>
-                    <div>20</div>
-                    <div>0</div>
-                  </div>
-                  
-                  <div className="absolute left-8 right-0 bottom-0 flex justify-between text-xs text-gray-500">
-                    <div>Aug</div>
-                    <div>Sept</div>
-                    <div>Oct</div>
-                    <div>Nov</div>
-                    <div>Dec</div>
-                    <div>Jan</div>
-                  </div>
-                  
-                  {/* Simplified chart representation */}
-                  <svg className="absolute inset-0 mt-4" viewBox="0 0 300 100" preserveAspectRatio="none">
-                    {/* Pink line (exams) */}
-                    <path 
-                      d="M0,80 C20,70 40,40 60,30 C80,20 100,40 120,50 C140,60 160,30 180,20 C200,10 220,30 240,50 C260,70 280,80 300,70" 
-                      fill="rgba(244,114,182,0.2)" 
-                      stroke="#f472b6" 
-                      strokeWidth="2"
-                    />
-                    
-                    {/* Blue line (materials) */}
-                    <path 
-                      d="M0,50 C20,40 40,30 60,40 C80,50 100,70 120,60 C140,50 160,20 180,30 C200,40 220,50 240,30 C260,20 280,10 300,20" 
-                      fill="rgba(29,78,216,0.2)" 
-                      stroke="#1d4ed8" 
-                      strokeWidth="2"
-                    />
-                    
-                    {/* Marker for selected point */}
-                    <circle cx="240" cy="30" r="4" fill="#1d4ed8" />
-                  </svg>
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 text-center shadow-sm">
+                <div className="text-3xl font-bold text-blue-600 mb-1">{longestStreak}</div>
+                <div className="text-xs text-gray-600 font-medium">Longest Streak</div>
+                <div className="mt-2 w-full h-1 bg-blue-200 rounded-full">
+                  <div className="h-1 bg-blue-500 rounded-full" style={{ width: '100%' }}></div>
                 </div>
+              </div>
+              
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 text-center shadow-sm">
+                <div className="text-3xl font-bold text-purple-600 mb-1">{totalDays}</div>
+                <div className="text-xs text-gray-600 font-medium">Total Days</div>
+                <div className="mt-2 w-full h-1 bg-purple-200 rounded-full">
+                  <div className="h-1 bg-purple-500 rounded-full" style={{ width: '75%' }}></div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Space reserved for backend data integration */}
+            <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-sm text-gray-500 mb-2">Connect to backend for detailed streak analytics</div>
+                <div className="text-xs text-gray-400">Backend integration ready</div>
               </div>
             </div>
           </div>
