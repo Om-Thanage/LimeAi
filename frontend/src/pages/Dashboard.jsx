@@ -420,61 +420,61 @@ function Dashboard() {
           </div>
 
           {/* Quick links */}
-          <div className="grid grid-cols-2 gap-4 mb-8">
-            <div className="bg-orange-100 rounded-xl p-4">
-              <div className="flex justify-between mb-2">
-                <div className="font-bold">Podcast</div>
-                <button 
-                  onClick={() => handleComponentClick('podcast')}
-                  className="bg-white rounded-full w-6 h-6 flex items-center justify-center"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-              <p className="text-sm">Create podcasts with AI voices</p>
-            </div>
-            
-            <div className="bg-pink-100 rounded-xl p-4">
-              <div className="flex justify-between mb-2">
-                <div className="font-bold">Flowchart</div>
-                <button 
-                  onClick={() => handleComponentClick('flowchart')}
-                  className="bg-white rounded-full w-6 h-6 flex items-center justify-center"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-              <p className="text-sm">Get Conceptual clarity using flowcharts instantly.</p>
-            </div>
-            
-            <div className="bg-pink-100 rounded-xl p-4">
-              <div className="flex justify-between mb-2">
-                <div className="font-bold">AI Summarizer</div>
-                <button 
-                  onClick={() => handleComponentClick('summary')}
-                  className="bg-white rounded-full w-6 h-6 flex items-center justify-center"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-              <p className="text-sm">SSummarize your lesson within seconds.Chat with AI and solve your doubts!</p>
-            </div>
-            
-            <div className="bg-orange-100 rounded-xl p-4">
-              <div className="flex justify-between mb-2">
-                <div className="font-bold">WhiteBoard</div>
-                <button 
-                  onClick={() => handleComponentClick('whiteboard')}
-                  className="bg-white rounded-full w-6 h-6 flex items-center justify-center"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-              <p className="text-sm">Create stunning drawings with AI-powered tools.</p>
-            </div>
-          </div>
-          
-          {/* Learning Streak - Modified Section */}
+                <div className="grid grid-cols-2 gap-4 mb-8">
+                <div className="bg-orange-100 rounded-xl p-4">
+                  <div className="flex justify-between mb-2">
+                  <div className="font-bold">Podcast</div>
+                  <button 
+                    onClick={() => handleComponentClick('podcast')}
+                    className="bg-white rounded-full w-6 h-6 flex items-center justify-center hover:cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                  </div>
+                  <p className="text-sm">Create podcasts with AI voices</p>
+                </div>
+                
+                <div className="bg-pink-100 rounded-xl p-4">
+                  <div className="flex justify-between mb-2">
+                  <div className="font-bold">Flowchart</div>
+                  <button 
+                    onClick={() => handleComponentClick('flowchart')}
+                    className="bg-white rounded-full w-6 h-6 flex items-center justify-center hover:cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                  </div>
+                  <p className="text-sm">Get Conceptual clarity using flowcharts instantly.</p>
+                </div>
+                
+                <div className="bg-pink-100 rounded-xl p-4">
+                  <div className="flex justify-between mb-2">
+                  <div className="font-bold">AI Summarizer</div>
+                  <button 
+                    onClick={() => handleComponentClick('summary')}
+                    className="bg-white rounded-full w-6 h-6 flex items-center justify-center hover:cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                  </div>
+                  <p className="text-sm">Summarize your lesson within seconds. Chat with AI and solve your doubts!</p>
+                </div>
+                
+                <div className="bg-orange-100 rounded-xl p-4">
+                  <div className="flex justify-between mb-2">
+                  <div className="font-bold">WhiteBoard</div>
+                  <button 
+                    onClick={() => handleComponentClick('whiteboard')}
+                    className="bg-white rounded-full w-6 h-6 flex items-center justify-center hover:cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                  </div>
+                  <p className="text-sm">Create stunning drawings with AI-powered tools.</p>
+                </div>
+                </div>
+                
+                {/* Learning Streak - Modified Section */}
           <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
             <div className="flex items-center mb-6">
               <h2 className="text-xl font-bold flex-1">Learning Streak</h2>
