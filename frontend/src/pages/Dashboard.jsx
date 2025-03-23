@@ -8,6 +8,8 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { getRecentActivities } from '../utils/firebaseHelpers';
 import { marked } from 'marked';
+import { db } from '../config/firebase';
+import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 
 // Add the Inter font import
 const interFontStyle = `
@@ -27,8 +29,12 @@ function Dashboard() {
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [activeComponent, setActiveComponent] = useState(null);
+  const [streakData, setStreakData] = useState({
+    currentStreak: 0,
+    longestStreak: 0,
+    totalDays: 0,
+  });
   
-  // No need for hoverDay state since we're removing the heatmap
   
   const handleMouseEnter = (item) => {
     setHoveredItem(item);
@@ -39,14 +45,15 @@ function Dashboard() {
   };
 
   useEffect(() => {
-    const fetchActivities = async () => {
+    const fetchUserData = async () => {
       if (currentUser) {
         try {
           const recentActivities = await getRecentActivities(currentUser.uid, 10);
-          setActivities(recentActivities || []); 
+          setActivities(recentActivities || []);
+          
+          await updateStreakData();
         } catch (error) {
-          console.error('Error fetching activities:', error);
-          setActivities([]);
+          console.error('Error fetching data:', error);
         } finally {
           setLoading(false);
         }
@@ -55,8 +62,165 @@ function Dashboard() {
       }
     };
 
-    fetchActivities();
+    fetchUserData();
   }, [currentUser]);
+
+  const updateStreakData = async () => {
+    if (!currentUser) return;
+    
+    try {
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      const userDoc = await getDoc(userDocRef);
+      
+      if (!userDoc.exists()) {
+        console.log("User document not found, creating initial streak data");
+        
+        const today = new Date();
+        const initialStreakData = {
+          currentStreak: 1,
+          longestStreak: 1,
+          lastLoginDate: today,
+          totalDays: 1,
+          streakHistory: [today.toISOString().split('T')[0]]
+        };
+        
+        await setDoc(userDocRef, {
+          onboarded: true,
+          onboardedAt: today,
+          streakData: initialStreakData
+        });
+        
+        // Update local state
+        setStreakData({
+          currentStreak: 1,
+          longestStreak: 1,
+          totalDays: 1
+        });
+        
+        return;
+      }
+      
+      const userData = userDoc.data();
+      
+      // Check if streakData exists
+      if (!userData.streakData) {
+        console.log("Streak data not found, initializing now");
+        
+        // Initialize streak data if it doesn't exist
+        const today = new Date();
+        const newStreakData = {
+          currentStreak: 1,
+          longestStreak: 1,
+          lastLoginDate: today,
+          totalDays: 1,
+          streakHistory: [today.toISOString().split('T')[0]]
+        };
+        
+        await updateDoc(userDocRef, {
+          streakData: newStreakData
+        });
+        
+        
+        setStreakData({
+          currentStreak: 1,
+          longestStreak: 1,
+          totalDays: 1
+        });
+        
+        return;
+      }
+      
+      
+      let { 
+        currentStreak, 
+        longestStreak, 
+        lastLoginDate, 
+        totalDays, 
+        streakHistory 
+      } = userData.streakData;
+      
+      
+      const lastLogin = lastLoginDate.toDate ? lastLoginDate.toDate() : new Date(lastLoginDate);
+      
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      
+      
+      const lastLoginDay = new Date(lastLogin);
+      lastLoginDay.setHours(0, 0, 0, 0);
+      
+      
+      const todayString = today.toISOString().split('T')[0];
+      
+      
+      let calculatedTotalDays = totalDays;
+      if (userData.onboardedAt) {
+        const onboardedDate = userData.onboardedAt.toDate ? 
+          userData.onboardedAt.toDate() : new Date(userData.onboardedAt);
+        const daysSinceCreation = Math.floor((Date.now() - onboardedDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+        calculatedTotalDays = Math.max(totalDays, daysSinceCreation);
+      }
+      
+      
+      if (lastLoginDay.getTime() === today.getTime()) {
+        setStreakData({
+          currentStreak,
+          longestStreak,
+          totalDays: calculatedTotalDays
+        });
+        return;
+      }
+      
+      
+      const isConsecutiveDay = lastLoginDay.getTime() === yesterday.getTime();
+      
+      
+      let updatedStreakData = {
+        lastLoginDate: today,
+        totalDays: calculatedTotalDays
+      };
+      
+      
+      if (!streakHistory) streakHistory = [];
+      
+      
+      const dateInHistory = streakHistory.includes(todayString);
+      
+      if (!dateInHistory) {
+        
+        updatedStreakData.streakHistory = [...streakHistory, todayString];
+        
+        if (isConsecutiveDay) {
+          updatedStreakData.currentStreak = currentStreak + 1;
+          updatedStreakData.longestStreak = Math.max(currentStreak + 1, longestStreak);
+        } else {
+          updatedStreakData.currentStreak = 1;
+        }
+      } else {
+        updatedStreakData.streakHistory = streakHistory;
+        updatedStreakData.currentStreak = currentStreak;
+        updatedStreakData.longestStreak = longestStreak;
+      }
+      
+      await updateDoc(userDocRef, {
+        streakData: updatedStreakData
+      });
+      
+      setStreakData({
+        currentStreak: updatedStreakData.currentStreak,
+        longestStreak: updatedStreakData.longestStreak,
+        totalDays: updatedStreakData.totalDays
+      });
+      
+    } catch (error) {
+      console.error("Error updating streak data:", error);
+    }
+  };
 
   
   const getActivityIcon = (type) => {
@@ -316,23 +480,23 @@ function Dashboard() {
               <h2 className="text-xl font-bold flex-1">Learning Streak</h2>
               <div className="flex items-center text-sm">
                 <Calendar className="w-4 h-4 mr-1" />
-                <span className="text-gray-500">3rd semester</span>
-                <ChevronDown className="w-4 h-4 ml-1" />
               </div>
             </div>
             
-            {/* Streak stats - Cool redesign */}
+            {/* Streak stats - Cool redesign with real data */}
             <div className="grid grid-cols-3 gap-4">
               <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 text-center shadow-sm">
-                <div className="text-3xl font-bold text-green-600 mb-1">{currentStreak}</div>
+                <div className="text-3xl font-bold text-green-600 mb-1">{streakData.currentStreak}</div>
                 <div className="text-xs text-gray-600 font-medium">Current Streak</div>
                 <div className="mt-2 w-full h-1 bg-green-200 rounded-full">
-                  <div className="h-1 bg-green-500 rounded-full" style={{ width: `${(currentStreak/longestStreak)*100}%` }}></div>
+                  <div className="h-1 bg-green-500 rounded-full" 
+                       style={{ width: `${streakData.longestStreak ? (streakData.currentStreak/streakData.longestStreak)*100 : 100}%` }}>
+                  </div>
                 </div>
               </div>
               
               <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 text-center shadow-sm">
-                <div className="text-3xl font-bold text-blue-600 mb-1">{longestStreak}</div>
+                <div className="text-3xl font-bold text-blue-600 mb-1">{streakData.longestStreak}</div>
                 <div className="text-xs text-gray-600 font-medium">Longest Streak</div>
                 <div className="mt-2 w-full h-1 bg-blue-200 rounded-full">
                   <div className="h-1 bg-blue-500 rounded-full" style={{ width: '100%' }}></div>
@@ -340,19 +504,11 @@ function Dashboard() {
               </div>
               
               <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 text-center shadow-sm">
-                <div className="text-3xl font-bold text-purple-600 mb-1">{totalDays}</div>
+                <div className="text-3xl font-bold text-purple-600 mb-1">{streakData.totalDays}</div>
                 <div className="text-xs text-gray-600 font-medium">Total Days</div>
                 <div className="mt-2 w-full h-1 bg-purple-200 rounded-full">
                   <div className="h-1 bg-purple-500 rounded-full" style={{ width: '75%' }}></div>
                 </div>
-              </div>
-            </div>
-            
-            {/* Space reserved for backend data integration */}
-            <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-center">
-              <div className="text-center">
-                <div className="text-sm text-gray-500 mb-2">Connect to backend for detailed streak analytics</div>
-                <div className="text-xs text-gray-400">Backend integration ready</div>
               </div>
             </div>
           </div>
