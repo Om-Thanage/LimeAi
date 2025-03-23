@@ -192,7 +192,7 @@ const Chatbot = ({ summarizedContent }) => {
                   type="text"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  onKeyPress={handleKeyPress}
+                  on={handleKeyPress}
                   className="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
                   placeholder={summarizedContent ? "Ask about your notes..." : "Summarize your notes first..."}
                   disabled={loading || !summarizedContent}
@@ -202,7 +202,7 @@ const Chatbot = ({ summarizedContent }) => {
                   className={`bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-4 py-2 ${
                     loading || !summarizedContent ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
-                  disabled={loading || !summarizedContent}
+                  disabled={loading || !summarizedContent} 
                 >
                   <SendIcon />
                 </button>
