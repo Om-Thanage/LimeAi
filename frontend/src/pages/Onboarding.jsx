@@ -50,12 +50,12 @@ function Onboarding() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
+    <div className="max-h-screen bg-gray-50 flex flex-col items-center justify-center">
       <main className="w-full max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         {/* Welcome Section */}
         <div className="bg-white shadow rounded-lg p-6 mb-6">
           {/* Bento Grid Layout */}
-          <div className="grid grid-cols-5 grid-rows-7 gap-4 h-[800px] w-full">
+          <div className="grid grid-cols-5 grid-rows-7 gap-4 h-[500px] w-full">
             {/* Div 3 - Large Main Feature */}
             <div className="col-span-3 row-span-4 bg-blue-50 p-6 rounded-lg flex flex-col">
               <h3 className="text-2xl font-semibold mb-4">Whiteboard</h3>
