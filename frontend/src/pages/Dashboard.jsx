@@ -529,7 +529,7 @@ function Dashboard() {
           
           <div className="flex flex-col items-center space-y-6 flex-1">
             <button 
-              className="text-white p-2 relative"
+              className="text-white p-2 relative cursor-pointer"
               onMouseEnter={() => handleMouseEnter('flowchart')}
               onMouseLeave={handleMouseLeave}
               onClick={() => handleComponentClick('flowchart')}
@@ -543,7 +543,7 @@ function Dashboard() {
             </button>
 
             <button 
-              className="text-white p-2 relative"
+              className="text-white p-2 relative cursor-pointer"
               onMouseEnter={() => handleMouseEnter('summary')}
               onMouseLeave={handleMouseLeave}
               onClick={() => handleComponentClick('summary')}
@@ -557,7 +557,7 @@ function Dashboard() {
             </button>
 
             <button 
-              className="text-white p-2 relative"
+              className="text-white p-2 relative cursor-pointer"
               onMouseEnter={() => handleMouseEnter('whiteboard')}
               onMouseLeave={handleMouseLeave}
               onClick={() => handleComponentClick('whiteboard')}
@@ -571,7 +571,7 @@ function Dashboard() {
             </button>
             
             <button 
-              className="text-white p-2 relative"
+              className="text-white p-2 relative cursor-pointer"
               onMouseEnter={() => handleMouseEnter('podcast')}
               onMouseLeave={handleMouseLeave}
               onClick={() => handleComponentClick('podcast')}
@@ -586,7 +586,7 @@ function Dashboard() {
             
             <div className="relative">
               <button 
-                className="text-white p-2"
+                className="text-white p-2 cursor-pointer"
                 onMouseEnter={() => handleMouseEnter('settings')}
                 onMouseLeave={handleMouseLeave}
               >
@@ -602,7 +602,7 @@ function Dashboard() {
           
           <div className="relative">
             <button 
-              className="text-white p-2" 
+              className="text-white p-2 cursor-pointer" 
               onClick={logout}
               onMouseEnter={() => handleMouseEnter('logout')}
               onMouseLeave={handleMouseLeave}
