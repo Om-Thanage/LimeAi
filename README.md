@@ -1,5 +1,7 @@
 #  LimeAI – Personalized Learning with AI  
 
+<img src="https://res.cloudinary.com/dzsscqf6t/image/upload/v1742701808/Screenshot_2025-03-23_091835_cpxw1q.png" alt="Landing Page" />
+
 ##  Overview  
 LimeAI is an AI-powered educational platform designed to provide personalized learning experiences. Traditional "one-size-fits-all" education often leaves students struggling. Our solution adapts to individual learning styles, helping users grasp concepts effectively through AI-driven tools.  
 
@@ -42,4 +44,27 @@ npm install
 # Start Backend
 npm run dev
 
-Made by bootWinXP
+```
+
+## ENV Setup
+Create a .env in Frontend Folder also create a FireBase Project to get these credentials
+```sh
+VITE_APP_API_KEY=YOUR_API_KEY_HERE
+VITE_APP_AUTH_DOMAIN=YOUR_AUTH_DOMAIN_HERE
+VITE_APP_PROJECT_ID=YOUR_PROJECT_ID_HERE
+VITE_APP_STORAGE_BUCKET=YOUR_STORAGE_BUCKET_HERE
+VITE_APP_MESSAGING_SENDER_ID=YOUR_MESSAGING_SENDER_ID_HERE
+VITE_APP_APP_ID=YOUR_APP_ID_HERE
+VITE_APP_MEASUREMENT_ID=YOUR_MEASUREMENT_ID_HERE
+VITE_DEEPSEEK_API_KEY=YOUR_DEEPSEEK_API_KEY_HERE
+```
+Create a .env in Backend Folder
+```sh
+PLAYDIALOG_USER_ID=YOUR_PLAYDIALOG_USER_ID_HERE
+PLAYDIALOG_SECRET_KEY=YOUR_PLAYDIALOG_SECRET_KEY_HERE
+DEEPSEEK_API_KEY=YOUR_DEEPSEEK_API_KEY_HERE
+#Keep the PORT 3001 for first time working
+PORT=3001
+```
+
+<h3 align="center">Made with ❤️ by team bootWinXP</h3>
