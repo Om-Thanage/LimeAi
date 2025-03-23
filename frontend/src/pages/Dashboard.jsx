@@ -261,7 +261,7 @@ function Dashboard() {
                   <Plus className="w-4 h-4" />
                 </button>
               </div>
-              <p className="text-sm">Learn Concepts while you go</p>
+              <p className="text-sm">Create podcasts with AI voices</p>
             </div>
             
             <div className="bg-pink-100 rounded-xl p-4">
@@ -274,7 +274,7 @@ function Dashboard() {
                   <Plus className="w-4 h-4" />
                 </button>
               </div>
-              <p className="text-sm">Set target, reminder and your study timeline</p>
+              <p className="text-sm">Get Conceptual clarity using flowcharts instantly.</p>
             </div>
             
             <div className="bg-pink-100 rounded-xl p-4">
@@ -287,7 +287,7 @@ function Dashboard() {
                   <Plus className="w-4 h-4" />
                 </button>
               </div>
-              <p className="text-sm">Set target, reminder and your study timeline</p>
+              <p className="text-sm">SSummarize your lesson within seconds.Chat with AI and solve your doubts!</p>
             </div>
             
             <div className="bg-orange-100 rounded-xl p-4">
@@ -300,7 +300,7 @@ function Dashboard() {
                   <Plus className="w-4 h-4" />
                 </button>
               </div>
-              <p className="text-sm">Set target, reminder and your study timeline</p>
+              <p className="text-sm">Create stunning drawings with AI-powered tools.</p>
             </div>
           </div>
           
