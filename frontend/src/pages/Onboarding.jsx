@@ -34,10 +34,22 @@ function Onboarding() {
     if (currentUser) {
       try {
         const userDocRef = doc(db, 'users', currentUser.uid);
+        const today = new Date();
+        
+        // Initialize streak-related data
         await setDoc(userDocRef, {
           onboarded: true,
-          onboardedAt: new Date(),
+          onboardedAt: today,
+          // Streak tracking data
+          streakData: {
+            currentStreak: 1, // Start with a streak of 1 for today
+            longestStreak: 1, // Initially, longest = current
+            lastLoginDate: today, // Track last login for streak calculations
+            totalDays: 1, // Total days the user has logged in
+            streakHistory: [today.toISOString().split('T')[0]] // Array of ISO date strings (YYYY-MM-DD)
+          }
         }, { merge: true });
+        
         window.location.href = '/dashboard';
       } catch (error) {
         console.error("Error updating onboarding status: ", error);
