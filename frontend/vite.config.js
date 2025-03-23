@@ -14,4 +14,21 @@ export default defineConfig({
       'src': path.resolve(__dirname, './src')
     },
   },
+  // Add build configuration for proper asset handling
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    // Generate a clean build
+    emptyOutDir: true,
+    // Improve chunking strategy
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+        },
+      },
+    },
+  },
+  // Ensure proper base path for production
+  base: '/',
 })
