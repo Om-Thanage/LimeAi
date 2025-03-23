@@ -56,8 +56,8 @@ return (
       {/* Left side with illustration */}
       <div className="login-illustration login-gradient">
         <div className="login-content">
-          <h1 className="login-title">ConceptFlow</h1>
-          <p className="login-subtitle">Visualize complex concepts with AI-generated flowcharts</p>
+          <h1 className="login-title">Lime AI</h1>
+          <p className="login-subtitle">All in one AI-powered educational platform</p>
           <div className="login-features">
             <div className="login-feature-item">
               <div className="login-feature-icon">
@@ -65,7 +65,7 @@ return (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <p className="login-feature-text">Intuitive flowchart generation</p>
+              <p className="login-feature-text">Whiteboard</p>
             </div>
             <div className="login-feature-item">
               <div className="login-feature-icon">
@@ -73,19 +73,34 @@ return (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <p className="login-feature-text">AI-powered concept mapping</p>
+              <p className="login-feature-text">AI Note Summarization & ChatBot</p>
             </div>
             <div className="login-feature-item">
+              <div className="login-feature-icon">
+                <svg className="login-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <p className="login-feature-text">Concept Visualizer using FlowCharts</p>
+            </div>
+            <div className="login-feature-item">
+              <div className="login-feature-icon">
+                <svg className="login-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <p className="login-feature-text">PodCast AI</p>
+            </div>
             </div>
           </div>
         </div>
-      </div>
+
       
       {/* Right side with login form */}
       <div className="login-form-container">
         <div className="login-form-content">
           <div className="login-header">
-            <h1 className="login-mobile-logo">ConceptFlow</h1>
+            <h1 className="login-mobile-logo">Lime AI</h1>
             <h2 className="login-heading">Welcome back</h2>
             <p className="login-subheading">
               Sign in to continue to your account
@@ -126,27 +141,16 @@ return (
                 {error}
               </div>
             )}
-            
-            <div className="login-signup-link">
-              <p className="login-signup-text">
-                Don't have an account yet?{' '}
-                <Link to="/register" className="login-link">
-                  Sign up for free
-                </Link>
-              </p>
-            </div>
           </div>
           
           <div className="login-footer">
             <p className="login-copyright">
-              &copy; 2025 ConceptFlow. All rights reserved.
+              &copy; 2025 Lime AI. All rights reserved.
             </p>
           </div>
         </div>
       </div>
     </div>
-  );
-
+);
 }
-
 export default Login;
