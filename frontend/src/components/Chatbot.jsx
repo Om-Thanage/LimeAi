@@ -62,6 +62,7 @@ const Chatbot = ({ summarizedContent }) => {
                    If the answer isn't in the notes, say "I don't see information about that in the notes."
                    Keep answers concise but thorough.
                    Use bullet points for complex answers.
+                   Use plain text formatting for a clean and professional appearance.
                    Here are the summarized notes:\n\n${summarizedContent}`,
         },
         {
@@ -103,6 +104,7 @@ const Chatbot = ({ summarizedContent }) => {
                        If the answer isn't in the notes, say "I don't see information about that in the notes."
                        Keep answers concise but thorough.
                        Use bullet points for complex answers.
+                       Use plain text formatting for a clean and professional appearance.
                        Here are the summarized notes:\n\n${summarizedContent}`
             },
             {
