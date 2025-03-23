@@ -457,7 +457,7 @@ function Dashboard() {
                   <Plus className="w-4 h-4" />
                 </button>
               </div>
-              <p className="text-sm">SSummarize your lesson within seconds.Chat with AI and solve your doubts!</p>
+              <p className="text-sm">Summarize your lesson within seconds.Chat with AI and solve your doubts!</p>
             </div>
             
             <div className="bg-orange-100 rounded-xl p-4">
