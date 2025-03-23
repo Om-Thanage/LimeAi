@@ -46,7 +46,7 @@ h1 {
 
 .concept-input:focus {
   outline: none;
-  border-color: #6d28d9;
+  border-color: #2563EB;
   box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.1);
 }
 
@@ -67,17 +67,17 @@ h1 {
 }
 
 .generate-btn {
-  background-color: #6d28d9;
+  background-color: #2563EB;
   color: white;
   flex: 3;
 }
 
 .generate-btn:hover {
-  background-color: #5b21b6;
+  background-color: #1D4ED8;
 }
 
 .generate-btn:disabled {
-  background-color: #a78bda;
+  background-color: #3f77f1;
   cursor: not-allowed;
 }
 

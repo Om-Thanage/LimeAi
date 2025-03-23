@@ -9,6 +9,10 @@ import { useAuth } from '../context/AuthContext';
 import { getRecentActivities } from '../utils/firebaseHelpers';
 import { marked } from 'marked';
 
+// Add the Inter font import
+const interFontStyle = `
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+`;
 
 const Flowchart = lazy(() => import('./flowchart'));
 const Summary = lazy(() => import('./Summary'));
@@ -380,130 +384,133 @@ function Dashboard() {
   };
 
   return (
-    <div className="flex h-screen bg-blue-500">
-      {/* Sidebar */}
-      <div className="w-20 flex flex-col items-center pt-8 pb-4 space-y-8">
-        <div className="bg-white w-10 h-10 rounded-lg flex items-center justify-center">
-          <img src='src/images/LimeAi.svg' alt='Logo' />
-        </div>
-        
-        <div className="flex flex-col items-center space-y-6 flex-1">
-          <button 
-            className="text-white p-2 relative"
-            onMouseEnter={() => handleMouseEnter('flowchart')}
-            onMouseLeave={handleMouseLeave}
-            onClick={() => handleComponentClick('flowchart')}
-          >
-            <BarChart2 className="w-6 h-6" />
-            {hoveredItem === 'flowchart' && (
-              <div className="absolute bottom-full ml-2 px-2 py-1 bg-white text-blue-500 rounded text-sm whitespace-nowrap">
-                Flowchart
-              </div>
-            )}
-          </button>
-
-          <button 
-            className="text-white p-2 relative"
-            onMouseEnter={() => handleMouseEnter('summary')}
-            onMouseLeave={handleMouseLeave}
-            onClick={() => handleComponentClick('summary')}
-          >
-            <BookOpen className="w-6 h-6" />
-            {hoveredItem === 'summary' && (
-              <div className="absolute bottom-full ml-2 px-2 py-1 bg-white text-blue-500 rounded text-sm whitespace-nowrap">
-                Summary
-              </div>
-            )}
-          </button>
-
-          <button 
-            className="text-white p-2 relative"
-            onMouseEnter={() => handleMouseEnter('whiteboard')}
-            onMouseLeave={handleMouseLeave}
-            onClick={() => handleComponentClick('whiteboard')}
-          >
-            <FolderOpen className="w-6 h-6" />
-            {hoveredItem === 'whiteboard' && (
-              <div className="absolute bottom-full px-2 py-1 bg-white text-blue-500 rounded text-sm whitespace-nowrap">
-                Whiteboard
-              </div>
-            )}
-          </button>
+    <>
+      <style>{interFontStyle}</style>
+      <div className="flex h-screen bg-blue-500 font-[Inter]">
+        {/* Sidebar */}
+        <div className="w-20 flex flex-col items-center pt-8 pb-4 space-y-8">
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center">
+            <img src='src/images/Lemon.png' alt='Logo' />
+          </div>
           
-          <button 
-            className="text-white p-2 relative"
-            onMouseEnter={() => handleMouseEnter('podcast')}
-            onMouseLeave={handleMouseLeave}
-            onClick={() => handleComponentClick('podcast')}
-          >
-            <Users className="w-6 h-6" />
-            {hoveredItem === 'podcast' && (
-              <div className="absolute bottom-full px-2 py-1 bg-white text-blue-500 rounded text-sm whitespace-nowrap">
-                Podcast
-              </div>
-            )}
-          </button>
+          <div className="flex flex-col items-center space-y-6 flex-1">
+            <button 
+              className="text-white p-2 relative"
+              onMouseEnter={() => handleMouseEnter('flowchart')}
+              onMouseLeave={handleMouseLeave}
+              onClick={() => handleComponentClick('flowchart')}
+            >
+              <BarChart2 className="w-6 h-6" />
+              {hoveredItem === 'flowchart' && (
+                <div className="absolute bottom-full ml-2 px-2 py-1 bg-white text-blue-500 rounded text-sm whitespace-nowrap">
+                  Flowchart
+                </div>
+              )}
+            </button>
+
+            <button 
+              className="text-white p-2 relative"
+              onMouseEnter={() => handleMouseEnter('summary')}
+              onMouseLeave={handleMouseLeave}
+              onClick={() => handleComponentClick('summary')}
+            >
+              <BookOpen className="w-6 h-6" />
+              {hoveredItem === 'summary' && (
+                <div className="absolute bottom-full ml-2 px-2 py-1 bg-white text-blue-500 rounded text-sm whitespace-nowrap">
+                  Summary
+                </div>
+              )}
+            </button>
+
+            <button 
+              className="text-white p-2 relative"
+              onMouseEnter={() => handleMouseEnter('whiteboard')}
+              onMouseLeave={handleMouseLeave}
+              onClick={() => handleComponentClick('whiteboard')}
+            >
+              <FolderOpen className="w-6 h-6" />
+              {hoveredItem === 'whiteboard' && (
+                <div className="absolute bottom-full px-2 py-1 bg-white text-blue-500 rounded text-sm whitespace-nowrap">
+                  Whiteboard
+                </div>
+              )}
+            </button>
+            
+            <button 
+              className="text-white p-2 relative"
+              onMouseEnter={() => handleMouseEnter('podcast')}
+              onMouseLeave={handleMouseLeave}
+              onClick={() => handleComponentClick('podcast')}
+            >
+              <Users className="w-6 h-6" />
+              {hoveredItem === 'podcast' && (
+                <div className="absolute bottom-full px-2 py-1 bg-white text-blue-500 rounded text-sm whitespace-nowrap">
+                  Podcast
+                </div>
+              )}
+            </button>
+            
+            <div className="relative">
+              <button 
+                className="text-white p-2"
+                onMouseEnter={() => handleMouseEnter('settings')}
+                onMouseLeave={handleMouseLeave}
+              >
+                <Settings className="w-6 h-6" />
+                {hoveredItem === 'settings' && (
+                  <div className="absolute bottom-full ml-2 px-2 py-1 bg-white text-blue-500 rounded text-sm whitespace-nowrap">
+                    Settings
+                  </div>
+                )}
+              </button>
+            </div>
+          </div>
           
           <div className="relative">
             <button 
-              className="text-white p-2"
-              onMouseEnter={() => handleMouseEnter('settings')}
+              className="text-white p-2" 
+              onClick={logout}
+              onMouseEnter={() => handleMouseEnter('logout')}
               onMouseLeave={handleMouseLeave}
             >
-              <Settings className="w-6 h-6" />
-              {hoveredItem === 'settings' && (
-                <div className="absolute bottom-full ml-2 px-2 py-1 bg-white text-blue-500 rounded text-sm whitespace-nowrap">
-                  Settings
+              <LogOut className="w-6 h-6" />
+              {hoveredItem === 'logout' && (
+                <div className="absolute bottom-full px-2 py-1 bg-white text-blue-500 rounded text-sm whitespace-nowrap">
+                  Logout
                 </div>
               )}
             </button>
           </div>
         </div>
         
-        <div className="relative">
-          <button 
-            className="text-white p-2" 
-            onClick={logout}
-            onMouseEnter={() => handleMouseEnter('logout')}
-            onMouseLeave={handleMouseLeave}
-          >
-            <LogOut className="w-6 h-6" />
-            {hoveredItem === 'logout' && (
-              <div className="absolute bottom-full px-2 py-1 bg-white text-blue-500 rounded text-sm whitespace-nowrap">
-                Logout
-              </div>
-            )}
-          </button>
+        {/* Main content */}
+        <div className="flex-1 bg-white rounded-tl-3xl rounded-bl-3xl p-8 overflow-y-auto">
+          {renderContent()}
         </div>
-      </div>
-      
-      {/* Main content */}
-      <div className="flex-1 bg-white rounded-tl-3xl rounded-bl-3xl p-8 overflow-y-auto">
-        {renderContent()}
-      </div>
 
-      {/* Content Modal */}
-      {showModal && selectedActivity && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center p-4 border-b">
-              <h2 className="text-xl font-bold">
-                {selectedActivity.type.charAt(0).toUpperCase() + selectedActivity.type.slice(1)}
-              </h2>
-              <button 
-                onClick={closeModal}
-                className="bg-gray-100 p-2 rounded-full hover:bg-gray-200"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="overflow-y-auto">
-              {renderActivityContent(selectedActivity)}
+        {/* Content Modal */}
+        {showModal && selectedActivity && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center p-4 border-b">
+                <h2 className="text-xl font-bold">
+                  {selectedActivity.type.charAt(0).toUpperCase() + selectedActivity.type.slice(1)}
+                </h2>
+                <button 
+                  onClick={closeModal}
+                  className="bg-gray-100 p-2 rounded-full hover:bg-gray-200"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="overflow-y-auto">
+                {renderActivityContent(selectedActivity)}
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }
 
