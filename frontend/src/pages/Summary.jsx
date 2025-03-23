@@ -89,7 +89,7 @@ const Summary = () => {
             {
               role: 'system',
               content:
-                'You are a helpful assistant that converts unstructured notes into a well-organized summary. Structure the content with clear sections and concise bullet points. Maintain essential details while ensuring readability. Use plain text formatting for a clean and professional appearance.',
+                'You are a helpful assistant that converts unstructured notes into a well-organized summary. Structure the content with clear sections and concise bullet points. Maintain essential details while ensuring readability. Use plain text formatting for a clean and professional appearance. Also maintain good spacing between paragraphs make the summary look appealing',
             },
             {
               role: 'user',

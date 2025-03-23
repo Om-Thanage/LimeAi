@@ -15,7 +15,7 @@ const Podcast = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [audioUrl, setAudioUrl] = useState(null);
   const [error, setError] = useState('');
-  const [step, setStep] = useState(1); // 1: Upload, 2: Generate, 3: Results
+  const [step, setStep] = useState(1);
   const [podcastStyle, setPodcastStyle] = useState('conversational');
   const [generationProgress, setGenerationProgress] = useState(0);
   const [jobId, setJobId] = useState(null);
@@ -647,15 +647,6 @@ const Podcast = () => {
               </div>
             
             <div className="text-center"></div>
-              <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
-                <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                Powered by PlayDialog AI
-              </div>
-              <p className="text-sm text-gray-600 mt-2">
-                Your professional multi-voice podcast has been created using AI technology.
-              </p>
             </div>
           </div>
         </div>

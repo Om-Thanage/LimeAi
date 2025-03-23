@@ -385,7 +385,7 @@ app.post('/api/generate-flowchart', async (req, res) => {
         - Include connections with arrows (-->)
         - Use clear branch labels for decision points using the |label| syntax
         
-        IMPORTANT: Return ONLY valid Mermaid.js code. No explanations, no text outside the code, no markdown formatting.
+        IMPORTANT: Return ONLY valid Mermaid.js code. No explanations, no text outside the code, no markdown formatting. Ensure the code does not produce syntax error in Mermaid.js
       `;
       
       // Call DeepSeek API
@@ -845,30 +845,51 @@ function createFallbackPodcastScript(text, style) {
       guestName = "Guest";
       break;
   }
+
+  const splitTextBySentences = (text, limit) => {
+    let words = text.split(" ");
+    let count = 0;
+    let result = [];
+
+    for (let word of words) {
+        result.push(word);
+        count += word.length + 1; // +1 for the space
+        if (count >= limit && /[.!?]$/.test(word)) {
+            break;
+        }
+    }
+
+    return result.join(" ");
+};
   
   // Create a simple script structure
-  return `HOST: Welcome to our podcast! Today we're going to be discussing an interesting topic.
+  return `HOST: Welcome to today’s episode. We’re exploring an important topic that plays a crucial role in computing.  
 
-GUEST: I'm excited to be here and talk about this with you.
+  GUEST: Glad to be here. This is a topic that deserves attention.  
+  
+  HOST: Let’s get started with some background.  
+  ${splitTextBySentences(text, 200)}  
+  
+  GUEST: That sets the stage well. Can you expand on the key aspects?  
+  
+  HOST: Certainly. Here’s a breakdown of the main concepts:  
+  ${splitTextBySentences(text.slice(200), 200)}  
+  
+  GUEST: That’s insightful. How does this apply in real-world scenarios?  
+  
+  HOST: Good question. Here’s how it plays out in practice:  
+  ${splitTextBySentences(text.slice(400), 200)}  
+  
+  GUEST: That makes sense. Are there any challenges or limitations?  
+  
+  HOST: Absolutely. One major consideration is:  
+  ${splitTextBySentences(text.slice(600), 200)}  
+  
+  GUEST: That’s valuable to know. Thanks for the detailed explanation.  
+  
+  HOST: My pleasure. And thanks to our listeners for joining us. Stay tuned for the next discussion.`;
+  }
 
-HOST: Let's dive right into it. ${text.slice(0, 200)}
-
-GUEST: That's fascinating. Can you tell me more about that?
-
-HOST: Absolutely. ${text.slice(200, 400)}
-
-GUEST: I see. And what are the implications of this?
-
-HOST: Great question. ${text.slice(400, 600)}
-
-GUEST: That makes a lot of sense. Is there anything else our listeners should know?
-
-HOST: Yes, there's one more important point. ${text.slice(600, 800)}
-
-GUEST: Thank you for sharing that insight.
-
-HOST: Thank you for joining us today, and thanks to all our listeners for tuning in. We'll see you next time!`;
-}
 
 // Create uploads directory if it doesn't exist
 const uploadDir = path.join(__dirname, 'uploads');
