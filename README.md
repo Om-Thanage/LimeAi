@@ -48,10 +48,11 @@ npm run dev
 ```
 
 ## ENV Setup
-Create a .env in Frontend Folder also create a FireBase Project to get the credentials
-Follow the env example given there
 
-Create a .env in Backend Folder
-Follow the env example given there
+Create a `.env` file in both the **frontend** and **backend** directories.
+
+- For the **frontend**, set up a Firebase project and use the credentials as specified in `.env.example`.
+- For the **backend**, follow the `.env.example` file to configure the required environment variables.
+
 
 <h3 align="center">Made with ❤️ by Team bootWinXP</h3>
