@@ -1,4 +1,5 @@
-#  LimeAI – Personalized Learning with AI  
+#  LimeAI – Personalized Learning with AI
+<a href="https://youtu.be/F7Y3gW7VAbU">Video Link</a>
 
 <img src="https://res.cloudinary.com/dzsscqf6t/image/upload/v1742701808/Screenshot_2025-03-23_091835_cpxw1q.png" alt="Landing Page" />
 
