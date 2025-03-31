@@ -46,83 +46,59 @@ const Chatbot = ({ summarizedContent }) => {
     setInputValue('');
     setLoading(true);
 
-
-    {/* deepseekr1free
-      
-      try {
-  const response = await axios.post(
-    "https://openrouter.ai/api/v1/chat/completions",
-    {
-      model: "deepseek/deepseek-r1:free",
-      messages: [
-        {
-          role: "system",
-          content: `You are a helpful study assistant chatbot. 
-                   Answer questions ONLY based on the summarized notes provided below.
-                   If the answer isn't in the notes, say "I don't see information about that in the notes."
-                   Keep answers concise but thorough.
-                   Use bullet points for complex answers.
-                   Use plain text formatting for a clean and professional appearance.
-                   Here are the summarized notes:\n\n${summarizedContent}`,
-        },
-        {
-          role: "user",
-          content: userMessage,
-        },
-      ],
-      temperature: 0.2,
-      max_tokens: 1024,
-    },
-    {
-      headers: {
-        "Authorization": `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
-        "HTTP-Referer": "<YOUR_SITE_URL>", // Optional for OpenRouter ranking
-        "X-Title": "<YOUR_SITE_NAME>", // Optional for OpenRouter ranking
-        "Content-Type": "application/json",
-      },
-    }
-  );
-
-  console.log(response.data);
-} catch (error) {
-  console.error("Error fetching AI response:", error);
-}
-
-
-      */}
-    
     try {
+      const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+      
+      
+      const historyFormatted = chatHistory.map(msg => ({
+        role: msg.userID === 'user' ? 'user' : 'model',
+        parts: [{ text: msg.textContent }]
+      })).slice(-5); 
+      
+      
+      const systemPrompt = {
+        role: 'user',
+        parts: [{
+          text: `You are a helpful study assistant chatbot. 
+                Answer questions ONLY based on the summarized notes provided below.
+                If the answer isn't in the notes, say "I don't see information about that in the notes."
+                Keep answers concise but thorough. Also explain in simple terms and ask a follow-up question if the user understood or not. 
+                If not, explain in simpler words by giving real-world examples apart from content provided.
+                Use bullet points for complex answers. While generating answers, maintain good spacing and punctuation in your sentences and between paragraphs.
+                Important: Do not use markdown, use plain text formatting for a clean and professional appearance.
+                Here are the summarized notes:
+
+                ${summarizedContent}`
+        }]
+      };
+      
+      // Add user's current message
+      const currentMessage = {
+        role: 'user',
+        parts: [{ text: userMessage }]
+      };
+      
+      
+      const messages = [systemPrompt, ...historyFormatted, currentMessage];
+      
       const response = await axios.post(
-        'https://api.deepseek.com/v1/chat/completions',
+        `${apiUrl}?key=${import.meta.env.VITE_GEMINI_API_KEY}`,
         {
-          model: 'deepseek-chat',
-          messages: [
-            {
-              role: 'system',
-              content: `You are a helpful study assistant chatbot. 
-                       Answer questions ONLY based on the summarized notes provided below.
-                       If the answer isn't in the notes, say "I don't see information about that in the notes."
-                       Keep answers concise but thorough. Also explain in simple terms and also ask a follow back question if the user understood or not. If not expalin in more simpler words by givingreal world examples apart from content provided.Use bullet points for complex answers.While geberating answer, maintain good spacing and punctuation in your sentences and between your paragraphs.
-                       Important : Do not ever use markdown, use plain text formatting for a clean and professional appearance.
-                       Here are the summarized notes:\n\n${summarizedContent}`
-            },
-            {
-              role: 'user',
-              content: userMessage
-            }
-          ],
-          temperature: 0.2,
-          max_tokens: 1024
+          contents: messages,
+          generationConfig: {
+            temperature: 0.2,
+            maxOutputTokens: 1024,
+          }
         },
         {
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_DEEPSEEK_API_KEY}`
+            'Content-Type': 'application/json'
           }
         }
       );
 
-      const responseText = response.data.choices[0].message.content;
+      
+      const responseText = response.data.candidates[0].content.parts[0].text;
       
       setChatHistory([
         ...updatedHistory,
@@ -193,7 +169,7 @@ const Chatbot = ({ summarizedContent }) => {
                   type="text"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  on={handleKeyPress}
+                  onKeyDown={handleKeyPress}
                   className="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
                   placeholder={summarizedContent ? "Ask about your notes..." : "Summarize your notes first..."}
                   disabled={loading || !summarizedContent}

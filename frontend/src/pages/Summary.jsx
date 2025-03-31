@@ -80,57 +80,59 @@ const Summary = () => {
     setError('');
     setSaved(false);
     try {
-      const apiUrl = 'https://api.deepseek.com/v1/chat/completions';
+      const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
       const response = await axios.post(
-        apiUrl,
+        `${apiUrl}?key=${import.meta.env.VITE_GEMINI_API_KEY}`,
         {
-          model: 'deepseek-chat',
-          messages: [
+          contents: [
             {
-              role: 'system',
-              content:
-                'You are a helpful assistant that converts unstructured notes into a well-organized summary. Structure the content with clear sections and concise bullet points. Maintain essential details while ensuring readability. Use plain text formatting for a clean and professional appearance. Also maintain good spacing between paragraphs make the summary look appealing',
-            },
-            {
-              role: 'user',
-              content: fileContent,
-            },
+              role: "user",
+              parts: [
+                {
+                  text: `You are a helpful assistant that converts unstructured notes into a well-organized summary. Structure the content with clear sections and concise bullet points. Maintain essential details while ensuring readability. Use plain text formatting for a clean and professional appearance. Also maintain good spacing between paragraphs make the summary look appealing.
+
+Here is the content to summarize:
+${fileContent}`
+                }
+              ]
+            }
           ],
-          temperature: 0.3,
-          max_tokens: 1500,
+          generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: 1500,
+          }
         },
         {
           headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${import.meta.env.VITE_DEEPSEEK_API_KEY}`,
-          },
+            'Content-Type': 'application/json'
+          }
         }
       );
-      const summaryContent = response.data.choices[0].message.content;
-      setSummary(summaryContent);
-      if (currentUser) {
-        try {
-          await saveContentToFirestore(
-            currentUser.uid,
-            title,
-            summaryContent,
-            'summary'
-          );
-          setSaved(true);
-        } catch (error) {
-          console.error('Error saving summary:', error);
-        }
+      const summaryContent = response.data.candidates[0].content.parts[0].text;
+    setSummary(summaryContent);
+    if (currentUser) {
+      try {
+        await saveContentToFirestore(
+          currentUser.uid,
+          title,
+          summaryContent,
+          'summary'
+        );
+        setSaved(true);
+      } catch (error) {
+        console.error('Error saving summary:', error);
       }
-    } catch (error) {
-      console.error('Error generating summary:', error);
-      setError(
-        error.response?.data?.error?.message ||
-          'Error generating summary. Please check your API key.'
-      );
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (error) {
+    console.error('Error generating summary:', error);
+    setError(
+      error.response?.data?.error?.message ||
+        'Error generating summary. Please check your API key.'
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="max-h-[50vh] flex">     
