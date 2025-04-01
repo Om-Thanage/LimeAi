@@ -28,7 +28,7 @@ LimeAI is an AI-powered educational platform designed to provide personalized le
 ##  Setup & Installation  
 ```sh
 # Clone the Repository
-git clone https://github.com/your-username/LimeAI.git
+git clone https://github.com/om-thanage/LimeAI.git
 cd LimeAI
 
 # Install Frontend Dependencies

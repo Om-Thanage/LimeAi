@@ -69,7 +69,7 @@ const Whiteboard = () => {
       width: '100%' 
     }}>
       {/* Custom Controls */}
-      <div className="toolbar" style={{ 
+      {/* <div className="toolbar" style={{ 
         display: 'flex', 
         backgroundColor: '#f5f5f5', 
         padding: '8px', 
@@ -158,7 +158,7 @@ const Whiteboard = () => {
         >
           {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
         </button>
-      </div>
+      </div> */}
       
       {/* Excalidraw Component */}
       <div style={{ 

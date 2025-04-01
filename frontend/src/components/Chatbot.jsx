@@ -2,11 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
 const Chatbot = ({ summarizedContent }) => {
-  const [isOpen, setIsOpen] = useState(true);
   const [inputValue, setInputValue] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const chatContainerRef = useRef(null);
+  const inputAreaRef = useRef(null); // New ref for the input area
 
   // Initial greeting message
   useEffect(() => {
@@ -20,6 +20,11 @@ const Chatbot = ({ summarizedContent }) => {
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+    
+    // Also scroll to input area after messages update
+    if (inputAreaRef.current) {
+      inputAreaRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [chatHistory]);
 
@@ -47,14 +52,12 @@ const Chatbot = ({ summarizedContent }) => {
     setLoading(true);
 
     try {
-      const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
-      
+      const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro-exp-03-25:generateContent';
       
       const historyFormatted = chatHistory.map(msg => ({
         role: msg.userID === 'user' ? 'user' : 'model',
         parts: [{ text: msg.textContent }]
       })).slice(-5); 
-      
       
       const systemPrompt = {
         role: 'user',
@@ -78,7 +81,6 @@ const Chatbot = ({ summarizedContent }) => {
         parts: [{ text: userMessage }]
       };
       
-      
       const messages = [systemPrompt, ...historyFormatted, currentMessage];
       
       const response = await axios.post(
@@ -96,7 +98,6 @@ const Chatbot = ({ summarizedContent }) => {
           }
         }
       );
-
       
       const responseText = response.data.candidates[0].content.parts[0].text;
       
@@ -116,6 +117,13 @@ const Chatbot = ({ summarizedContent }) => {
       ]);
     } finally {
       setLoading(false);
+      
+      // Ensure input area is visible after loading completes
+      setTimeout(() => {
+        if (inputAreaRef.current) {
+          inputAreaRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
     }
   };
 
@@ -127,19 +135,10 @@ const Chatbot = ({ summarizedContent }) => {
 
   return (
     <div className="h-full bg-white rounded-lg shadow">
-      <div className="flex flex-col h-[80vh]">
+      <div className="flex flex-col min-h-[60vh]">
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <h2 className="text-xl font-semibold">Notes Assistant</h2>
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            {isOpen ? <MinimizeIcon /> : <MaximizeIcon />}
-          </button>
         </div>
-        
-        {isOpen && (
-          <>
             <div 
               ref={chatContainerRef}
               className="flex-1 overflow-y-auto p-4 space-y-4"
@@ -163,7 +162,7 @@ const Chatbot = ({ summarizedContent }) => {
               )}
             </div>
             
-            <div className="p-4 border-t border-gray-200">
+            <div className="p-4 border-t border-gray-200" ref={inputAreaRef}>
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -185,14 +184,12 @@ const Chatbot = ({ summarizedContent }) => {
                 </button>
               </div>
             </div>
-          </>
-        )}
       </div>
     </div>
   );
 };
 
-// Icons
+// Icons remain unchanged
 const MinimizeIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
