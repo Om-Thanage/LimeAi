@@ -5,7 +5,7 @@ import { saveContentToFirestore } from '../utils/firebaseHelpers';
 import mammoth from 'mammoth';
 
 // API base URL - change this when deploying
-const API_BASE_URL = 'http://localhost:3001';
+const API_BASE_URL = 'https://limeai.onrender.com';
 
 const Podcast = () => {
   const [file, setFile] = useState(null);
