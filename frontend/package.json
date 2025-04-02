@@ -18,9 +18,7 @@
     "@tailwindcss/vite": "^4.0.15",
     "axios": "^1.8.4",
     "clsx": "^2.1.1",
-    "fabric": "^6.6.1",
     "firebase": "^11.5.0",
-    "konva": "^9.3.20",
     "lucide-react": "^0.483.0",
     "mammoth": "^1.9.0",
     "marked": "^15.0.7",
@@ -30,7 +28,6 @@
     "react": "19.0.0",
     "react-color": "^2.19.3",
     "react-dom": "19.0.0",
-    "react-konva": "^19.0.3",
     "react-router-dom": "^7.4.0",
     "tailwindcss": "^4.0.15"
   },
