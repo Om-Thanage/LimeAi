@@ -42,14 +42,6 @@ const AppRoutes = () => {
           </ProtectedRoute>
         } 
       />
-      <Route 
-        path="/onboarding" 
-        element={
-          <ProtectedRoute>
-            <Onboarding />
-          </ProtectedRoute>
-        } 
-      />
     </Routes>
   )
 }
