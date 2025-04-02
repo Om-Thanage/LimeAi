@@ -1,4 +1,6 @@
 // Create a background image component that uses a standard img tag
+import React from "react"
+
 function BackgroundImage() {
   return (
     <img
