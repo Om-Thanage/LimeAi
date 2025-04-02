@@ -3,7 +3,7 @@ function BackgroundImage() {
   return (
     <img
       className="absolute inset-0 h-full w-full object-cover"
-      src="/images/background-auth.jpg" // This path should point to your public folder
+      src="assets/images/background-auth.jpg" // This path should point to your public folder
       alt=""
     />
   )

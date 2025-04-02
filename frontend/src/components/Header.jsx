@@ -14,7 +14,7 @@ import { Button } from './Button';
 import { Container } from './Container';
 import { NavLink } from './NavLink';
 
-import limeai from '../images/LimeAi.svg';
+
 
 function MobileNavLink({ href, children }) {
   return (
@@ -60,7 +60,7 @@ export function Header() {
         <nav className="relative z-50 flex justify-between">
           <div className="flex items-center md:gap-x-12">
             <Link to="/" aria-label="Home">
-              <img src={limeai} alt="LimeAi Logo" className="h-10 w-auto" />
+              <img src="assets/images/LimeAi.svg" alt="LimeAi Logo" className="h-10 w-auto" />
             </Link>
           </div>
           <div className="flex items-center gap-x-5 md:gap-x-8">

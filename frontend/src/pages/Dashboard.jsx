@@ -524,7 +524,7 @@ function Dashboard() {
         {/* Sidebar */}
         <div className="w-20 flex flex-col items-center pt-8 pb-4 space-y-8">
           <div className="w-10 h-10 rounded-lg flex items-center justify-center">
-            <img src='src/images/Lemon.png' alt='Logo' />
+            <img src='assets/images/Lemon.png' alt='Logo' />
           </div>
           
           <div className="flex flex-col items-center space-y-6 flex-1">
