@@ -21,13 +21,13 @@ export default defineConfig({
     // Generate a clean build
     emptyOutDir: true,
     // Improve chunking strategy
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-        },
-      },
-    },
+    // rollupOptions: {
+    //   output: {
+    //     manualChunks: {
+    //       vendor: ['react', 'react-dom', 'react-router-dom'],
+    //     },
+    //   },
+    // },
   },
   // Ensure proper base path for production
   base: '/',
