@@ -55,4 +55,4 @@ Create a `.env` file in both the **frontend** and **backend** directories.
 - For the **backend**, follow the `.env.example` file to configure the required environment variables.
 
 
-<h3 align="center">Made with ❤️ by Team bootWinXP</h3>
+<h3 align="center">Made with ❤️ by Team bootWinXp</h3>
