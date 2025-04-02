@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { saveContentToFirestore } from '../utils/firebaseHelpers';
 
 // API base URL - change this when deploying
-const API_BASE_URL = 'http://localhost:3001';
+const API_BASE_URL = 'https://limeai.onrender.com';
 
 const Flowchart = () => {
   const [concept, setConcept] = useState('');
