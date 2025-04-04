@@ -78,7 +78,7 @@ function Dashboard() {
         const today = new Date();
         const initialStreakData = {
           currentStreak: 1,
-          longestStreak: 1,
+          longestStreak: 1, // Set longest streak to 1 as well
           lastLoginDate: today,
           totalDays: 1,
           streakHistory: [today.toISOString().split('T')[0]]
@@ -93,7 +93,7 @@ function Dashboard() {
         // Update local state
         setStreakData({
           currentStreak: 1,
-          longestStreak: 1,
+          longestStreak: 1, // Ensure longest streak is 1
           totalDays: 1
         });
         
@@ -110,7 +110,7 @@ function Dashboard() {
         const today = new Date();
         const newStreakData = {
           currentStreak: 1,
-          longestStreak: 1,
+          longestStreak: 1, // Set longest streak to 1
           lastLoginDate: today,
           totalDays: 1,
           streakHistory: [today.toISOString().split('T')[0]]
@@ -120,43 +120,38 @@ function Dashboard() {
           streakData: newStreakData
         });
         
-        
         setStreakData({
           currentStreak: 1,
-          longestStreak: 1,
+          longestStreak: 1, // Ensure longest streak is 1
           totalDays: 1
         });
         
         return;
       }
       
-      
       let { 
-        currentStreak, 
-        longestStreak, 
+        currentStreak = 0, 
+        longestStreak = 0, 
         lastLoginDate, 
-        totalDays, 
-        streakHistory 
+        totalDays = 0, 
+        streakHistory = [] 
       } = userData.streakData;
       
+      // Ensure longestStreak is at least equal to currentStreak
+      longestStreak = Math.max(longestStreak, currentStreak);
       
-      const lastLogin = lastLoginDate.toDate ? lastLoginDate.toDate() : new Date(lastLoginDate);
-      
+      const lastLogin = lastLoginDate?.toDate ? lastLoginDate.toDate() : new Date(lastLoginDate || Date.now());
       
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
-      
       const yesterday = new Date(today);
       yesterday.setDate(yesterday.getDate() - 1);
-      
       
       const lastLoginDay = new Date(lastLogin);
       lastLoginDay.setHours(0, 0, 0, 0);
       
-      
       const todayString = today.toISOString().split('T')[0];
-      
       
       let calculatedTotalDays = totalDays;
       if (userData.onboardedAt) {
@@ -166,45 +161,42 @@ function Dashboard() {
         calculatedTotalDays = Math.max(totalDays, daysSinceCreation);
       }
       
-      
       if (lastLoginDay.getTime() === today.getTime()) {
         setStreakData({
-          currentStreak,
-          longestStreak,
-          totalDays: calculatedTotalDays
+          currentStreak: Math.max(currentStreak, 1), // Ensure at least 1
+          longestStreak: Math.max(longestStreak, 1), // Ensure at least 1
+          totalDays: Math.max(calculatedTotalDays, 1) // Ensure at least 1
         });
         return;
       }
       
-      
       const isConsecutiveDay = lastLoginDay.getTime() === yesterday.getTime();
-      
       
       let updatedStreakData = {
         lastLoginDate: today,
-        totalDays: calculatedTotalDays
+        totalDays: Math.max(calculatedTotalDays, 1) // Ensure at least 1
       };
       
-      
       if (!streakHistory) streakHistory = [];
-      
       
       const dateInHistory = streakHistory.includes(todayString);
       
       if (!dateInHistory) {
-        
         updatedStreakData.streakHistory = [...streakHistory, todayString];
         
         if (isConsecutiveDay) {
-          updatedStreakData.currentStreak = currentStreak + 1;
-          updatedStreakData.longestStreak = Math.max(currentStreak + 1, longestStreak);
+          const newCurrentStreak = currentStreak + 1;
+          updatedStreakData.currentStreak = newCurrentStreak;
+          updatedStreakData.longestStreak = Math.max(newCurrentStreak, longestStreak);
         } else {
           updatedStreakData.currentStreak = 1;
+          // Don't reset longest streak, just keep the previous value
+          updatedStreakData.longestStreak = Math.max(1, longestStreak);
         }
       } else {
         updatedStreakData.streakHistory = streakHistory;
-        updatedStreakData.currentStreak = currentStreak;
-        updatedStreakData.longestStreak = longestStreak;
+        updatedStreakData.currentStreak = Math.max(currentStreak, 1); // Ensure at least 1
+        updatedStreakData.longestStreak = Math.max(longestStreak, 1); // Ensure at least 1
       }
       
       await updateDoc(userDocRef, {
@@ -213,7 +205,7 @@ function Dashboard() {
       
       setStreakData({
         currentStreak: updatedStreakData.currentStreak,
-        longestStreak: updatedStreakData.longestStreak,
+        longestStreak: updatedStreakData.longestStreak, 
         totalDays: updatedStreakData.totalDays
       });
       
@@ -322,10 +314,6 @@ function Dashboard() {
     setActiveComponent(null);
   };
 
-  // Generate placeholder streak data (in a real app, this would come from your backend)
-  const currentStreak = 7;
-  const longestStreak = 14;
-  const totalDays = 42;
   
   const renderContent = () => {
     if (activeComponent) {
@@ -486,17 +474,27 @@ function Dashboard() {
             {/* Streak stats - Cool redesign with real data */}
             <div className="grid grid-cols-3 gap-4">
               <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 text-center shadow-sm">
-                <div className="text-3xl font-bold text-green-600 mb-1">{streakData.currentStreak}</div>
+                <div className="text-3xl font-bold text-green-600 mb-1">
+                  {streakData.currentStreak || 0}
+                </div>
                 <div className="text-xs text-gray-600 font-medium">Current Streak</div>
                 <div className="mt-2 w-full h-1 bg-green-200 rounded-full">
-                  <div className="h-1 bg-green-500 rounded-full" 
-                       style={{ width: `${streakData.longestStreak ? (streakData.currentStreak/streakData.longestStreak)*100 : 100}%` }}>
+                  <div 
+                    className="h-1 bg-green-500 rounded-full" 
+                    style={{ 
+                      width: `${streakData.longestStreak > 0 
+                        ? Math.min(100, (streakData.currentStreak/streakData.longestStreak)*100) 
+                        : 100}%` 
+                    }}
+                  >
                   </div>
                 </div>
               </div>
               
               <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 text-center shadow-sm">
-                <div className="text-3xl font-bold text-blue-600 mb-1">{streakData.longestStreak}</div>
+                <div className="text-3xl font-bold text-blue-600 mb-1">
+                  {streakData.longestStreak || 0}
+                </div>
                 <div className="text-xs text-gray-600 font-medium">Longest Streak</div>
                 <div className="mt-2 w-full h-1 bg-blue-200 rounded-full">
                   <div className="h-1 bg-blue-500 rounded-full" style={{ width: '100%' }}></div>
@@ -504,7 +502,9 @@ function Dashboard() {
               </div>
               
               <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 text-center shadow-sm">
-                <div className="text-3xl font-bold text-purple-600 mb-1">{streakData.totalDays}</div>
+                <div className="text-3xl font-bold text-purple-600 mb-1">
+                  {streakData.totalDays || 0}
+                </div>
                 <div className="text-xs text-gray-600 font-medium">Total Days</div>
                 <div className="mt-2 w-full h-1 bg-purple-200 rounded-full">
                   <div className="h-1 bg-purple-500 rounded-full" style={{ width: '75%' }}></div>
