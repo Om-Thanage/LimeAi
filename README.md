@@ -19,9 +19,9 @@ LimeAI is an AI-powered educational platform designed to provide personalized le
 - **Frontend:** Vite + React + TailwindCSS 
 - **Backend:** Axios, Node.js, Express.js
 - **Authentication:** Google Auth  
-- **AI Features:** Google Generative AI, DeepSeek R1  
+- **AI Features:** Google Generative AI  
 - **Diagram Rendering:** Mermaid.js  
-- **Whiteboard Rendering:** Konva.js 
+- **Whiteboard Rendering:** Excalidraw API 
 - **Text Extraction (OCR):** Mammoth.js 
 - **Text to Speech (Podcast):** PlayDialogue 
 
