@@ -20,6 +20,7 @@ const Flowchart = lazy(() => import('./flowchart'));
 const Summary = lazy(() => import('./Summary'));
 const Podcast = lazy(() => import('./Podcast'));
 const Whiteboard = lazy(() => import('./Whiteboard'));
+const Profile = lazy(() => import('../components/Profile'));
 
 function Dashboard() {
   const { currentUser, logout } = useAuth();
@@ -34,6 +35,7 @@ function Dashboard() {
     longestStreak: 0,
     totalDays: 0,
   });
+  const [showProfile, setShowProfile] = useState(false);
   
   
   const handleMouseEnter = (item) => {
@@ -589,11 +591,12 @@ function Dashboard() {
                 className="text-white p-2 cursor-pointer"
                 onMouseEnter={() => handleMouseEnter('settings')}
                 onMouseLeave={handleMouseLeave}
+                onClick={() => setShowProfile(true)}
               >
                 <Settings className="w-6 h-6" />
                 {hoveredItem === 'settings' && (
                   <div className="absolute bottom-full ml-2 px-2 py-1 bg-white text-blue-500 rounded text-sm whitespace-nowrap">
-                    Settings
+                    Profile
                   </div>
                 )}
               </button>
@@ -641,6 +644,15 @@ function Dashboard() {
                 {renderActivityContent(selectedActivity)}
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Profile Modal */}
+        {showProfile && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <Suspense fallback={<div className="bg-white p-8 rounded-lg">Loading...</div>}>
+              <Profile onClose={() => setShowProfile(false)} />
+            </Suspense>
           </div>
         )}
       </div>
