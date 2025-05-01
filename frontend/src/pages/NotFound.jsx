@@ -7,21 +7,21 @@ export default function NotFound() {
       <div className="flex">
         <Link to="/" aria-label="Home">
           <img 
-            src="/assets/images/LimeAi.svg" 
+            src="/assets/images/1.png" 
             alt="LimeAI Logo" 
-            className="h-10 w-auto" 
+            className="h-25 w-auto" 
           />
         </Link>
       </div>
-      <p className="mt-20 text-sm font-medium text-gray-700">404</p>
-      <h1 className="mt-3 text-lg font-semibold text-gray-900">
+      <p className="mt-5 text-2xl font-medium text-gray-700">404</p>
+      <h1 className="mt-2 text-2xl font-semibold text-gray-900">
         Page not found
       </h1>
-      <p className="mt-3 text-sm text-gray-700">
+      <p className="mt-3 text-m text-gray-700">
         Sorry, we couldn't find the page you're looking for.
       </p>
       <Link 
-        to="/"
+        to="/dashboard"
         className="mt-10 inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-blue-600"
       >
         Go back home
