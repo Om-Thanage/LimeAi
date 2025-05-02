@@ -53,6 +53,11 @@ function Dashboard() {
           const recentActivities = await getRecentActivities(currentUser.uid, 10);
           setActivities(recentActivities || []);
           
+          // Get streak data once
+          // If the streak system is completely broken, uncomment the next line
+          // await resetStreakData(); 
+          
+          // Then use the new update logic
           await updateStreakData();
         } catch (error) {
           console.error('Error fetching data:', error);
@@ -74,16 +79,20 @@ function Dashboard() {
       const userDocRef = doc(db, 'users', currentUser.uid);
       const userDoc = await getDoc(userDocRef);
       
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayString = today.toISOString().split('T')[0];
+      
+      // New user with no document
       if (!userDoc.exists()) {
-        console.log("User document not found, creating initial streak data");
+        console.log("Creating new user document with streak data");
         
-        const today = new Date();
         const initialStreakData = {
           currentStreak: 1,
-          longestStreak: 1, // Set longest streak to 1 as well
-          lastLoginDate: today,
-          totalDays: 1,
-          streakHistory: [today.toISOString().split('T')[0]]
+          longestStreak: 1,
+          lastVisit: today,
+          visitDates: [todayString], // Array of dates the user visited
+          visitCount: 1 // Total visits (days)
         };
         
         await setDoc(userDocRef, {
@@ -92,30 +101,26 @@ function Dashboard() {
           streakData: initialStreakData
         });
         
-        // Update local state
         setStreakData({
           currentStreak: 1,
-          longestStreak: 1, // Ensure longest streak is 1
+          longestStreak: 1,
           totalDays: 1
         });
         
         return;
       }
       
+      // Existing user but no streak data
       const userData = userDoc.data();
-      
-      // Check if streakData exists
       if (!userData.streakData) {
-        console.log("Streak data not found, initializing now");
+        console.log("Initializing streak data for existing user");
         
-        // Initialize streak data if it doesn't exist
-        const today = new Date();
         const newStreakData = {
           currentStreak: 1,
-          longestStreak: 1, // Set longest streak to 1
-          lastLoginDate: today,
-          totalDays: 1,
-          streakHistory: [today.toISOString().split('T')[0]]
+          longestStreak: 1,
+          lastVisit: today,
+          visitDates: [todayString],
+          visitCount: 1
         };
         
         await updateDoc(userDocRef, {
@@ -124,95 +129,186 @@ function Dashboard() {
         
         setStreakData({
           currentStreak: 1,
-          longestStreak: 1, // Ensure longest streak is 1
+          longestStreak: 1,
           totalDays: 1
         });
         
         return;
       }
       
+      // Get existing streak data
       let { 
         currentStreak = 0, 
         longestStreak = 0, 
-        lastLoginDate, 
-        totalDays = 0, 
-        streakHistory = [] 
+        lastVisit, 
+        visitDates = [], 
+        visitCount = 0 
       } = userData.streakData;
       
-      // Ensure longestStreak is at least equal to currentStreak
-      longestStreak = Math.max(longestStreak, currentStreak);
+      // Convert to proper Date object
+      const lastVisitDate = lastVisit?.toDate ? lastVisit.toDate() : new Date(lastVisit);
+      lastVisitDate.setHours(0, 0, 0, 0);
       
-      const lastLogin = lastLoginDate?.toDate ? lastLoginDate.toDate() : new Date(lastLoginDate || Date.now());
-      
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
+      // Calculate yesterday
       const yesterday = new Date(today);
       yesterday.setDate(yesterday.getDate() - 1);
+      yesterday.setHours(0, 0, 0, 0);
       
-      const lastLoginDay = new Date(lastLogin);
-      lastLoginDay.setHours(0, 0, 0, 0);
+      // Check if already visited today
+      const alreadyVisitedToday = visitDates.includes(todayString);
       
-      const todayString = today.toISOString().split('T')[0];
-      
-      let calculatedTotalDays = totalDays;
-      if (userData.onboardedAt) {
-        const onboardedDate = userData.onboardedAt.toDate ? 
-          userData.onboardedAt.toDate() : new Date(userData.onboardedAt);
-        const daysSinceCreation = Math.floor((Date.now() - onboardedDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-        calculatedTotalDays = Math.max(totalDays, daysSinceCreation);
-      }
-      
-      if (lastLoginDay.getTime() === today.getTime()) {
-        setStreakData({
-          currentStreak: Math.max(currentStreak, 1), // Ensure at least 1
-          longestStreak: Math.max(longestStreak, 1), // Ensure at least 1
-          totalDays: Math.max(calculatedTotalDays, 1) // Ensure at least 1
-        });
-        return;
-      }
-      
-      const isConsecutiveDay = lastLoginDay.getTime() === yesterday.getTime();
-      
-      let updatedStreakData = {
-        lastLoginDate: today,
-        totalDays: Math.max(calculatedTotalDays, 1) // Ensure at least 1
-      };
-      
-      if (!streakHistory) streakHistory = [];
-      
-      const dateInHistory = streakHistory.includes(todayString);
-      
-      if (!dateInHistory) {
-        updatedStreakData.streakHistory = [...streakHistory, todayString];
+      // If not visited today, update streak
+      if (!alreadyVisitedToday) {
+        // Add today to visit dates
+        visitDates.push(todayString);
+        visitCount += 1;
+        
+        // Check if last visit was yesterday
+        const isConsecutiveDay = lastVisitDate.getTime() === yesterday.getTime();
         
         if (isConsecutiveDay) {
-          const newCurrentStreak = currentStreak + 1;
-          updatedStreakData.currentStreak = newCurrentStreak;
-          updatedStreakData.longestStreak = Math.max(newCurrentStreak, longestStreak);
-        } else {
-          updatedStreakData.currentStreak = 1;
-          // Don't reset longest streak, just keep the previous value
-          updatedStreakData.longestStreak = Math.max(1, longestStreak);
+          // Continue streak
+          currentStreak += 1;
+          // Update longest streak if needed
+          longestStreak = Math.max(longestStreak, currentStreak);
+        } else if (lastVisitDate.getTime() !== today.getTime()) {
+          // Not consecutive and not today - reset streak
+          currentStreak = 1;
         }
-      } else {
-        updatedStreakData.streakHistory = streakHistory;
-        updatedStreakData.currentStreak = Math.max(currentStreak, 1); // Ensure at least 1
-        updatedStreakData.longestStreak = Math.max(longestStreak, 1); // Ensure at least 1
       }
+      
+      // Sanity check for longest streak
+      const maxPossibleStreak = 120; // Reasonable max for a learning app
+      if (longestStreak > maxPossibleStreak) {
+        longestStreak = Math.min(currentStreak, maxPossibleStreak);
+      }
+      
+      // Update database
+      const updatedStreakData = {
+        currentStreak,
+        longestStreak,
+        lastVisit: today,
+        visitDates: [...new Set(visitDates)].sort(), // Remove duplicates and sort
+        visitCount: [...new Set(visitDates)].length // Count unique dates
+      };
       
       await updateDoc(userDocRef, {
         streakData: updatedStreakData
       });
       
+      // Update local state
       setStreakData({
         currentStreak: updatedStreakData.currentStreak,
-        longestStreak: updatedStreakData.longestStreak, 
-        totalDays: updatedStreakData.totalDays
+        longestStreak: updatedStreakData.longestStreak,
+        totalDays: updatedStreakData.visitCount
       });
       
     } catch (error) {
       console.error("Error updating streak data:", error);
+    }
+  };
+
+  const fixStreakData = async () => {
+    if (!currentUser) return;
+    
+    try {
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      const userDoc = await getDoc(userDocRef);
+      
+      if (!userDoc.exists() || !userDoc.data().streakData) {
+        return; // No data to fix
+      }
+      
+      const userData = userDoc.data();
+      const { streakData } = userData;
+      
+      // Create a copy of the data to modify
+      const fixedStreakData = { ...streakData };
+      
+      // Fix impossible values
+      const today = new Date();
+      const earliestPossibleDate = new Date(2024, 0, 1); // Jan 1, 2024 or whenever your app launched
+      const daysSinceStart = Math.floor((today - earliestPossibleDate) / (1000 * 60 * 60 * 24)) + 1;
+      
+      if (fixedStreakData.longestStreak > daysSinceStart) {
+        fixedStreakData.longestStreak = Math.min(fixedStreakData.currentStreak, daysSinceStart);
+      }
+      
+      // Ensure streak history is correct
+      if (fixedStreakData.streakHistory && Array.isArray(fixedStreakData.streakHistory)) {
+        // Remove duplicates and sort
+        const uniqueHistory = [...new Set(fixedStreakData.streakHistory)].sort();
+        fixedStreakData.streakHistory = uniqueHistory;
+        fixedStreakData.totalDays = uniqueHistory.length;
+      } else {
+        // Reset streak history if it's corrupted
+        const todayString = today.toISOString().split('T')[0];
+        fixedStreakData.streakHistory = [todayString];
+        fixedStreakData.totalDays = 1;
+      }
+      
+      // Add streakStart if missing
+      if (!fixedStreakData.streakStart) {
+        const todayString = today.toISOString().split('T')[0];
+        fixedStreakData.streakStart = todayString;
+      }
+      
+      // Update the data
+      await updateDoc(userDocRef, {
+        streakData: fixedStreakData
+      });
+      
+      setStreakData({
+        currentStreak: fixedStreakData.currentStreak,
+        longestStreak: fixedStreakData.longestStreak,
+        totalDays: fixedStreakData.totalDays
+      });
+      
+      console.log("Streak data fixed!");
+      
+    } catch (error) {
+      console.error("Error fixing streak data:", error);
+    }
+  };
+
+  const resetStreakData = async () => {
+    if (!currentUser) return;
+    
+    try {
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      const userDoc = await getDoc(userDocRef);
+      
+      if (!userDoc.exists()) return;
+      
+      const userData = userDoc.data();
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayString = today.toISOString().split('T')[0];
+      
+      // Simple fresh start
+      const resetStreakData = {
+        currentStreak: 1,
+        longestStreak: 1,
+        lastVisit: today,
+        visitDates: [todayString],
+        visitCount: 1
+      };
+      
+      await updateDoc(userDocRef, {
+        streakData: resetStreakData
+      });
+      
+      setStreakData({
+        currentStreak: 1,
+        longestStreak: 1,
+        totalDays: 1
+      });
+      
+      console.log("Streak data has been reset!");
+      
+    } catch (error) {
+      console.error("Error resetting streak data:", error);
     }
   };
 

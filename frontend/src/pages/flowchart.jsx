@@ -168,7 +168,7 @@ const Flowchart = () => {
         {saved && <div className="saved-message">Flowchart saved to your account! Check the Dashboard to view it later.</div>}
         
         <p className="api-note">
-          <strong>AI Powered Flowcharts:</strong> This app uses DeepSeek AI to generate custom flowcharts.
+          <strong>AI Powered Flowcharts:</strong> This app uses Gemini AI to generate custom flowcharts.
           For best results, wait at least 5 seconds between requests.
         </p>
       </div>
