@@ -4,7 +4,7 @@
 <img src="https://res.cloudinary.com/dzsscqf6t/image/upload/v1742701808/Screenshot_2025-03-23_091835_cpxw1q.png" alt="Landing Page" />
 
 ##  Overview  
-LimeAI is an AI-powered educational platform designed to provide personalized learning experiences. Traditional "one-size-fits-all" education often leaves students struggling. Our solution adapts to individual learning styles, helping users grasp concepts effectively through AI-driven tools.  
+LimeAI is an AI-powered educational platform designed to provide personalized learning experiences. Traditional "one-size-fits-all" education often leaves students struggling. Our solution adapts to individual learning styles, helping users grasp concepts effectively through AI-driven tools all in one place.  
 
 ##  Features  
 - **Google Authentication** – Secure login via Google Auth.  
@@ -54,5 +54,5 @@ Create a `.env` file in both the **frontend** and **backend** directories.
 - For the **frontend**, set up a Firebase project and use the credentials as specified in `.env.example`.
 - For the **backend**, follow the `.env.example` file to configure the required environment variables.
 
-
-<h3 align="center">Made with ❤️ by Team bootWinXp</h3>
+<br>
+<h5 align="center">Made with ❤️ by Team bootWinXP</h5>

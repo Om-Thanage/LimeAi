@@ -16,7 +16,7 @@ const interFontStyle = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 `;
 
-const Flowchart = lazy(() => import('./flowchart'));
+const Flowchart = lazy(() => import('./Flowchart'));
 const Summary = lazy(() => import('./Summary'));
 const Podcast = lazy(() => import('./Podcast'));
 const Whiteboard = lazy(() => import('./Whiteboard'));

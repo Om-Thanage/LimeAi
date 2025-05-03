@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import mermaid from 'mermaid';
-import './flowchart.css';
+import './Flowchart.css';
 import { useAuth } from '../context/AuthContext';
 import { saveContentToFirestore } from '../utils/firebaseHelpers';
 

@@ -12,7 +12,7 @@ export function Footer() {
         </div>
         <div className="flex flex-col items-center border-t border-slate-400/10 py-10 sm:flex-row-reverse sm:justify-between">
           <div className="flex gap-x-6">
-            <a href="https://github.com/Om-Thanage/LimeAi" className="group" aria-label="LimeAI on GitHub">
+            <a href="https://github.com/Om-Thanage/LimeAi" target="_blank" className="group" aria-label="LimeAI on GitHub">
               <svg
                 className="h-6 w-6 fill-slate-500 group-hover:fill-slate-700"
                 aria-hidden="true"
