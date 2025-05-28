@@ -29,7 +29,6 @@ const variantStyles = {
   },
 };
 
-
 export function Button({ className, ...props }) {
   props.variant ??= 'solid';
   props.color ??= 'slate';
@@ -44,9 +43,24 @@ export function Button({ className, ...props }) {
     className,
   );
 
+  // Check if the href is external (starts with http or https)
+  const isExternalLink = props.href?.startsWith('http');
+  
   return typeof props.href === 'undefined' ? (
     <button className={className} {...props} />
+  ) : isExternalLink ? (
+    // Use regular anchor tag for external links with target="_blank" and security attributes
+    <a 
+      href={props.href} 
+      className={className} 
+      target="_blank" 
+      rel="noopener noreferrer"
+      {...props}
+    >
+      {props.children}
+    </a>
   ) : (
+    // Use React Router's Link for internal navigation
     <Link to={props.href} className={className} {...props} />
   );
 }

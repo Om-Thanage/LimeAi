@@ -16,10 +16,11 @@ const interFontStyle = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 `;
 
-const Flowchart = lazy(() => import('./flowchart'));
+const Flowchart = lazy(() => import('./Flowchart'));
 const Summary = lazy(() => import('./Summary'));
 const Podcast = lazy(() => import('./Podcast'));
 const Whiteboard = lazy(() => import('./Whiteboard'));
+const Profile = lazy(() => import('../components/Profile'));
 
 function Dashboard() {
   const { currentUser, logout } = useAuth();
@@ -34,6 +35,7 @@ function Dashboard() {
     longestStreak: 0,
     totalDays: 0,
   });
+  const [showProfile, setShowProfile] = useState(false);
   
   
   const handleMouseEnter = (item) => {
@@ -51,6 +53,11 @@ function Dashboard() {
           const recentActivities = await getRecentActivities(currentUser.uid, 10);
           setActivities(recentActivities || []);
           
+          // Get streak data once
+          // If the streak system is completely broken, uncomment the next line
+          // await resetStreakData(); 
+          
+          // Then use the new update logic
           await updateStreakData();
         } catch (error) {
           console.error('Error fetching data:', error);
@@ -72,16 +79,20 @@ function Dashboard() {
       const userDocRef = doc(db, 'users', currentUser.uid);
       const userDoc = await getDoc(userDocRef);
       
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayString = today.toISOString().split('T')[0];
+      
+      // New user with no document
       if (!userDoc.exists()) {
-        console.log("User document not found, creating initial streak data");
+        console.log("Creating new user document with streak data");
         
-        const today = new Date();
         const initialStreakData = {
           currentStreak: 1,
           longestStreak: 1,
-          lastLoginDate: today,
-          totalDays: 1,
-          streakHistory: [today.toISOString().split('T')[0]]
+          lastVisit: today,
+          visitDates: [todayString], // Array of dates the user visited
+          visitCount: 1 // Total visits (days)
         };
         
         await setDoc(userDocRef, {
@@ -90,7 +101,6 @@ function Dashboard() {
           streakData: initialStreakData
         });
         
-        // Update local state
         setStreakData({
           currentStreak: 1,
           longestStreak: 1,
@@ -100,27 +110,23 @@ function Dashboard() {
         return;
       }
       
+      // Existing user but no streak data
       const userData = userDoc.data();
-      
-      // Check if streakData exists
       if (!userData.streakData) {
-        console.log("Streak data not found, initializing now");
+        console.log("Initializing streak data for existing user");
         
-        // Initialize streak data if it doesn't exist
-        const today = new Date();
         const newStreakData = {
           currentStreak: 1,
           longestStreak: 1,
-          lastLoginDate: today,
-          totalDays: 1,
-          streakHistory: [today.toISOString().split('T')[0]]
+          lastVisit: today,
+          visitDates: [todayString],
+          visitCount: 1
         };
         
         await updateDoc(userDocRef, {
           streakData: newStreakData
         });
         
-        
         setStreakData({
           currentStreak: 1,
           longestStreak: 1,
@@ -130,95 +136,179 @@ function Dashboard() {
         return;
       }
       
-      
+      // Get existing streak data
       let { 
-        currentStreak, 
-        longestStreak, 
-        lastLoginDate, 
-        totalDays, 
-        streakHistory 
+        currentStreak = 0, 
+        longestStreak = 0, 
+        lastVisit, 
+        visitDates = [], 
+        visitCount = 0 
       } = userData.streakData;
       
+      // Convert to proper Date object
+      const lastVisitDate = lastVisit?.toDate ? lastVisit.toDate() : new Date(lastVisit);
+      lastVisitDate.setHours(0, 0, 0, 0);
       
-      const lastLogin = lastLoginDate.toDate ? lastLoginDate.toDate() : new Date(lastLoginDate);
-      
-      
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      
+      // Calculate yesterday
       const yesterday = new Date(today);
       yesterday.setDate(yesterday.getDate() - 1);
+      yesterday.setHours(0, 0, 0, 0);
       
+      // Check if already visited today
+      const alreadyVisitedToday = visitDates.includes(todayString);
       
-      const lastLoginDay = new Date(lastLogin);
-      lastLoginDay.setHours(0, 0, 0, 0);
-      
-      
-      const todayString = today.toISOString().split('T')[0];
-      
-      
-      let calculatedTotalDays = totalDays;
-      if (userData.onboardedAt) {
-        const onboardedDate = userData.onboardedAt.toDate ? 
-          userData.onboardedAt.toDate() : new Date(userData.onboardedAt);
-        const daysSinceCreation = Math.floor((Date.now() - onboardedDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-        calculatedTotalDays = Math.max(totalDays, daysSinceCreation);
-      }
-      
-      
-      if (lastLoginDay.getTime() === today.getTime()) {
-        setStreakData({
-          currentStreak,
-          longestStreak,
-          totalDays: calculatedTotalDays
-        });
-        return;
-      }
-      
-      
-      const isConsecutiveDay = lastLoginDay.getTime() === yesterday.getTime();
-      
-      
-      let updatedStreakData = {
-        lastLoginDate: today,
-        totalDays: calculatedTotalDays
-      };
-      
-      
-      if (!streakHistory) streakHistory = [];
-      
-      
-      const dateInHistory = streakHistory.includes(todayString);
-      
-      if (!dateInHistory) {
+      // If not visited today, update streak
+      if (!alreadyVisitedToday) {
+        // Add today to visit dates
+        visitDates.push(todayString);
+        visitCount += 1;
         
-        updatedStreakData.streakHistory = [...streakHistory, todayString];
+        // Check if last visit was yesterday
+        const isConsecutiveDay = lastVisitDate.getTime() === yesterday.getTime();
         
         if (isConsecutiveDay) {
-          updatedStreakData.currentStreak = currentStreak + 1;
-          updatedStreakData.longestStreak = Math.max(currentStreak + 1, longestStreak);
-        } else {
-          updatedStreakData.currentStreak = 1;
+          // Continue streak
+          currentStreak += 1;
+          // Update longest streak if needed
+          longestStreak = Math.max(longestStreak, currentStreak);
+        } else if (lastVisitDate.getTime() !== today.getTime()) {
+          // Not consecutive and not today - reset streak
+          currentStreak = 1;
         }
-      } else {
-        updatedStreakData.streakHistory = streakHistory;
-        updatedStreakData.currentStreak = currentStreak;
-        updatedStreakData.longestStreak = longestStreak;
       }
+      
+      // Sanity check for longest streak
+      const maxPossibleStreak = 120; // Reasonable max for a learning app
+      if (longestStreak > maxPossibleStreak) {
+        longestStreak = Math.min(currentStreak, maxPossibleStreak);
+      }
+      
+      // Update database
+      const updatedStreakData = {
+        currentStreak,
+        longestStreak,
+        lastVisit: today,
+        visitDates: [...new Set(visitDates)].sort(), // Remove duplicates and sort
+        visitCount: [...new Set(visitDates)].length // Count unique dates
+      };
       
       await updateDoc(userDocRef, {
         streakData: updatedStreakData
       });
       
+      // Update local state
       setStreakData({
         currentStreak: updatedStreakData.currentStreak,
         longestStreak: updatedStreakData.longestStreak,
-        totalDays: updatedStreakData.totalDays
+        totalDays: updatedStreakData.visitCount
       });
       
     } catch (error) {
       console.error("Error updating streak data:", error);
+    }
+  };
+
+  const fixStreakData = async () => {
+    if (!currentUser) return;
+    
+    try {
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      const userDoc = await getDoc(userDocRef);
+      
+      if (!userDoc.exists() || !userDoc.data().streakData) {
+        return; // No data to fix
+      }
+      
+      const userData = userDoc.data();
+      const { streakData } = userData;
+      
+      // Create a copy of the data to modify
+      const fixedStreakData = { ...streakData };
+      
+      // Fix impossible values
+      const today = new Date();
+      const earliestPossibleDate = new Date(2024, 0, 1); // Jan 1, 2024 or whenever your app launched
+      const daysSinceStart = Math.floor((today - earliestPossibleDate) / (1000 * 60 * 60 * 24)) + 1;
+      
+      if (fixedStreakData.longestStreak > daysSinceStart) {
+        fixedStreakData.longestStreak = Math.min(fixedStreakData.currentStreak, daysSinceStart);
+      }
+      
+      // Ensure streak history is correct
+      if (fixedStreakData.streakHistory && Array.isArray(fixedStreakData.streakHistory)) {
+        // Remove duplicates and sort
+        const uniqueHistory = [...new Set(fixedStreakData.streakHistory)].sort();
+        fixedStreakData.streakHistory = uniqueHistory;
+        fixedStreakData.totalDays = uniqueHistory.length;
+      } else {
+        // Reset streak history if it's corrupted
+        const todayString = today.toISOString().split('T')[0];
+        fixedStreakData.streakHistory = [todayString];
+        fixedStreakData.totalDays = 1;
+      }
+      
+      // Add streakStart if missing
+      if (!fixedStreakData.streakStart) {
+        const todayString = today.toISOString().split('T')[0];
+        fixedStreakData.streakStart = todayString;
+      }
+      
+      // Update the data
+      await updateDoc(userDocRef, {
+        streakData: fixedStreakData
+      });
+      
+      setStreakData({
+        currentStreak: fixedStreakData.currentStreak,
+        longestStreak: fixedStreakData.longestStreak,
+        totalDays: fixedStreakData.totalDays
+      });
+      
+      console.log("Streak data fixed!");
+      
+    } catch (error) {
+      console.error("Error fixing streak data:", error);
+    }
+  };
+
+  const resetStreakData = async () => {
+    if (!currentUser) return;
+    
+    try {
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      const userDoc = await getDoc(userDocRef);
+      
+      if (!userDoc.exists()) return;
+      
+      const userData = userDoc.data();
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayString = today.toISOString().split('T')[0];
+      
+      // Simple fresh start
+      const resetStreakData = {
+        currentStreak: 1,
+        longestStreak: 1,
+        lastVisit: today,
+        visitDates: [todayString],
+        visitCount: 1
+      };
+      
+      await updateDoc(userDocRef, {
+        streakData: resetStreakData
+      });
+      
+      setStreakData({
+        currentStreak: 1,
+        longestStreak: 1,
+        totalDays: 1
+      });
+      
+      console.log("Streak data has been reset!");
+      
+    } catch (error) {
+      console.error("Error resetting streak data:", error);
     }
   };
 
@@ -322,10 +412,6 @@ function Dashboard() {
     setActiveComponent(null);
   };
 
-  // Generate placeholder streak data (in a real app, this would come from your backend)
-  const currentStreak = 7;
-  const longestStreak = 14;
-  const totalDays = 42;
   
   const renderContent = () => {
     if (activeComponent) {
@@ -487,11 +573,13 @@ function Dashboard() {
         {/* Streak stats - Cool redesign with real data */}
         <div className="grid sm:grid-cols-3 grid-cols-1 gap-4">
           <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 text-center shadow-sm">
-          <div className="text-3xl font-bold text-green-600 mb-1">{streakData.currentStreak}</div>
+          <div className="text-3xl font-bold text-green-600 mb-1">{streakData.currentStreak || 0}</div>
           <div className="text-xs text-gray-600 font-medium">Current Streak</div>
           <div className="mt-2 w-full h-1 bg-green-200 rounded-full">
             <div className="h-1 bg-green-500 rounded-full" 
-               style={{ width: `${streakData.longestStreak ? (streakData.currentStreak/streakData.longestStreak)*100 : 100}%` }}>
+               style={{ width: `${streakData.longestStreak > 0 
+                        ? Math.min(100, (streakData.currentStreak/streakData.longestStreak)*100) 
+                        : 100}%`  }}>
             </div>
           </div>
           </div>
@@ -505,7 +593,7 @@ function Dashboard() {
           </div>
           
           <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 text-center shadow-sm">
-          <div className="text-3xl font-bold text-purple-600 mb-1">{streakData.totalDays}</div>
+          <div className="text-3xl font-bold text-purple-600 mb-1">{streakData.totalDays || 0}</div>
           <div className="text-xs text-gray-600 font-medium">Total Days</div>
           <div className="mt-2 w-full h-1 bg-purple-200 rounded-full">
             <div className="h-1 bg-purple-500 rounded-full" style={{ width: '75%' }}></div>
@@ -590,11 +678,12 @@ function Dashboard() {
                 className="text-white p-2 cursor-pointer"
                 onMouseEnter={() => handleMouseEnter('settings')}
                 onMouseLeave={handleMouseLeave}
+                onClick={() => setShowProfile(true)}
               >
                 <Settings className="w-6 h-6" />
                 {hoveredItem === 'settings' && (
                   <div className="absolute bottom-full ml-2 px-2 py-1 bg-white text-blue-500 rounded text-sm whitespace-nowrap">
-                    Settings
+                    Profile
                   </div>
                 )}
               </button>
@@ -642,6 +731,15 @@ function Dashboard() {
                 {renderActivityContent(selectedActivity)}
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Profile Modal */}
+        {showProfile && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <Suspense fallback={<div className="bg-white p-8 rounded-lg">Loading...</div>}>
+              <Profile onClose={() => setShowProfile(false)} />
+            </Suspense>
           </div>
         )}
       </div>

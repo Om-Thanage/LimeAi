@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import Mammoth from 'mammoth';
 import { PDFDocument } from 'pdf-lib';
@@ -6,7 +6,7 @@ import Chatbot from '../components/Chatbot';
 import { useAuth } from '../context/AuthContext';
 import { saveContentToFirestore } from '../utils/firebaseHelpers';
 import { marked } from 'marked';
-import { BarChart2, BookOpen, FolderOpen, Users, Settings, LogOut } from 'lucide-react';
+import { BarChart2, BookOpen, FolderOpen, Users, Settings, LogOut, Upload, File } from 'lucide-react';
 
 const Summary = () => {
   const { currentUser, logout } = useAuth();
@@ -18,6 +18,7 @@ const Summary = () => {
   const [error, setError] = useState('');
   const [saved, setSaved] = useState(false);
   const [title, setTitle] = useState('');
+  const fileInputRef = useRef(null);
 
   const handleMouseEnter = (item) => {
     setHoveredItem(item);
@@ -25,6 +26,10 @@ const Summary = () => {
 
   const handleMouseLeave = () => {
     setHoveredItem(null);
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current.click();
   };
 
   const handleFileChange = async (e) => {
@@ -145,12 +150,28 @@ ${fileContent}`
             <div className="mb-6">
               <h2 className="text-xl font-semibold mb-4">Upload Document</h2>
               <div className="flex flex-col space-y-4">
-                <input
-                  type="file"
-                  onChange={handleFileChange}
-                  className="border p-2 rounded"
-                  accept=".txt,.md,.docx,.pdf"
-                />
+                <div className="relative">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    className="hidden"
+                    accept=".txt,.md,.docx,.pdf"
+                  />
+                  <div 
+                    onClick={triggerFileInput}
+                    className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2 rounded shadow transition-colors duration-200 cursor-pointer"
+                  >
+                    <Upload size={18} />
+                    <span>Browse Files</span>
+                  </div>
+                  {file && (
+                    <div className="flex items-center mt-2 p-2 bg-blue-50 rounded">
+                      <File size={16} className="text-blue-500 mr-2" />
+                      <span className="text-sm text-gray-700 truncate">{file.name}</span>
+                    </div>
+                  )}
+                </div>
                 <input
                   type="text"
                   value={title}

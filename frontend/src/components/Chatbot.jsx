@@ -1,12 +1,14 @@
-import React ,{ useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
 const Chatbot = ({ summarizedContent }) => {
   const [inputValue, setInputValue] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const chatContainerRef = useRef(null);
-  const inputAreaRef = useRef(null); // New ref for the input area
+  const latestUserMessageRef = useRef(null);
+  const inputRef = useRef(null);
 
   // Initial greeting message
   useEffect(() => {
@@ -16,17 +18,28 @@ const Chatbot = ({ summarizedContent }) => {
     }]);
   }, []);
 
-  // Scroll to bottom when new messages are added
+  // Scroll to the user's latest message when they submit a prompt
   useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    if (latestUserMessageRef.current && chatContainerRef.current) {
+      // Scroll within the chat container instead of the whole page
+      chatContainerRef.current.scrollTo({
+        top: latestUserMessageRef.current.offsetTop - chatContainerRef.current.offsetTop,
+        behavior: 'smooth'
+      });
     }
     
-    // Also scroll to input area after messages update
-    if (inputAreaRef.current) {
-      inputAreaRef.current.scrollIntoView({ behavior: 'smooth' });
+    // Expand the chat container when there's more than just the greeting
+    if (chatHistory.length > 1) {
+      setExpanded(true);
     }
   }, [chatHistory]);
+  
+  // Focus the input field after sending a message
+  useEffect(() => {
+    if (!loading && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [loading]);
 
   const getResponseForGivenPrompt = async () => {
     if (inputValue.trim() === '') return;
@@ -68,6 +81,7 @@ const Chatbot = ({ summarizedContent }) => {
                 Keep answers concise but thorough. Also explain in simple terms and ask a follow-up question if the user understood or not. 
                 If not, explain in simpler words by giving real-world examples apart from content provided.
                 Use bullet points for complex answers. While generating answers, maintain good spacing and punctuation in your sentences and between paragraphs.
+                Do not mention that this is according to the notes, it does not look good in the response.
                 Important: Do not use markdown, use plain text formatting for a clean and professional appearance.
                 Here are the summarized notes:
 
@@ -117,13 +131,6 @@ const Chatbot = ({ summarizedContent }) => {
       ]);
     } finally {
       setLoading(false);
-      
-      // Ensure input area is visible after loading completes
-      setTimeout(() => {
-        if (inputAreaRef.current) {
-          inputAreaRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
     }
   };
 
@@ -134,100 +141,85 @@ const Chatbot = ({ summarizedContent }) => {
   };
 
   return (
-    <div className="h-full bg-white rounded-lg shadow">
-      <div className="flex flex-col min-h-[60vh]">
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold">Notes Assistant</h2>
-        </div>
-            <div 
-              ref={chatContainerRef}
-              className="flex-1 overflow-y-auto p-4 space-y-4"
+    <div 
+      className="h-full bg-white rounded-lg shadow flex flex-col"
+      style={{ 
+        height: expanded ? "calc(80vh)" : "320px", 
+        transition: "height 0.3s ease",
+        position: "relative" // Add this to create a positioning context
+      }}
+    >
+      <div className="flex items-center justify-between p-3 border-b border-gray-200">
+        <h2 className="text-xl font-semibold">Notes Assistant</h2>
+      </div>
+      
+      {/* Dynamic height chat container */}
+      <div 
+        ref={chatContainerRef}
+        className="flex-1 overflow-y-auto p-4 space-y-4"
+        style={{ 
+          height: expanded ? "calc(100% - 80px)" : "220px",
+          transition: "height 0.3s ease",
+          overscrollBehavior: "contain" // Prevents scroll chaining
+        }}
+      >
+        {chatHistory.map((chat, index) => {
+          const isUserMessage = chat.userID === 'user';
+          const isLastUserMessage = isUserMessage && 
+            chatHistory.filter(msg => msg.userID === 'user').length === 
+            chatHistory.filter(msg => msg.userID === 'user' && chatHistory.indexOf(msg) <= index).length;
+          
+          return (
+            <div
+              key={index}
+              ref={isLastUserMessage ? latestUserMessageRef : null}
+              className={`max-w-[80%] ${
+                isUserMessage
+                  ? 'ml-auto bg-blue-500 text-white rounded-l-lg rounded-tr-lg' 
+                  : 'bg-gray-100 rounded-r-lg rounded-tl-lg'
+              } p-3`}
             >
-              {chatHistory.map((chat, index) => (
-                <div
-                  key={index}
-                  className={`max-w-[80%] ${
-                    chat.userID === 'user' 
-                      ? 'ml-auto bg-blue-500 text-white rounded-l-lg rounded-tr-lg' 
-                      : 'bg-gray-100 rounded-r-lg rounded-tl-lg'
-                  } p-3`}
-                >
-                  <p className="whitespace-pre-line">{chat.textContent}</p>
-                </div>
-              ))}
-              {loading && (
-                <div className="bg-gray-100 max-w-[80%] rounded-r-lg rounded-tl-lg p-3">
-                  <p>Thinking...</p>
-                </div>
-              )}
+              <p className="whitespace-pre-line">{chat.textContent}</p>
             </div>
-            
-            <div className="p-4 border-t border-gray-200" ref={inputAreaRef}>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyDown={handleKeyPress}
-                  className="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
-                  placeholder={summarizedContent ? "Ask about your notes..." : "Summarize your notes first..."}
-                  disabled={loading || !summarizedContent}
-                />
-                <button
-                  onClick={getResponseForGivenPrompt}
-                  className={`bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-4 py-2 ${
-                    loading || !summarizedContent ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
-                  disabled={loading || !summarizedContent} 
-                >
-                  <SendIcon />
-                </button>
-              </div>
-            </div>
+          );
+        })}
+        {loading && (
+          <div className="bg-gray-100 max-w-[80%] rounded-r-lg rounded-tl-lg p-3">
+            <p>Thinking...</p>
+          </div>
+        )}
+        {/* Invisible div for stable scrolling */}
+        <div className="h-4"></div>
+      </div>
+      
+      <div className="p-4 border-t border-gray-200 mt-auto">
+        <div className="flex gap-2">
+          <input
+            type="text"
+            ref={inputRef}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyPress}
+            className="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
+            placeholder={summarizedContent ? "Ask about your notes..." : "Summarize your notes first..."}
+            disabled={loading || !summarizedContent}
+          />
+          <button
+            onClick={getResponseForGivenPrompt}
+            className={`bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-4 py-2 ${
+              loading || !summarizedContent ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+            disabled={loading || !summarizedContent} 
+          >
+            <SendIcon />
+          </button>
+        </div>
       </div>
     </div>
   );
 };
 
-// Icons remain unchanged
-const MinimizeIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <polyline points="4 14 10 14 10 20"></polyline>
-    <polyline points="20 10 14 10 14 4"></polyline>
-    <line x1="14" y1="10" x2="21" y2="3"></line>
-    <line x1="3" y1="21" x2="10" y2="14"></line>
-  </svg>
-);
-
-const MaximizeIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <polyline points="15 3 21 3 21 9"></polyline>
-    <polyline points="9 21 3 21 3 15"></polyline>
-    <line x1="21" y1="3" x2="14" y2="10"></line>
-    <line x1="3" y1="21" x2="10" y2="14"></line>
-  </svg>
-);
-
+// SendIcon component remains unchanged
 const SendIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
