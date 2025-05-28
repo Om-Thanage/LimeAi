@@ -28,12 +28,6 @@ function MobileNavLink({ href, children }) {
 function MobileNavigation() {
   return (
     <Popover>
-      <PopoverButton
-        className="relative z-10 flex h-8 w-8 items-center justify-center ui-not-focus-visible:outline-none"
-        aria-label="Toggle Navigation"
-      >
-        <span>Menu</span>
-      </PopoverButton>
       <Transition>
         <TransitionChild
           enter="duration-150 ease-out"

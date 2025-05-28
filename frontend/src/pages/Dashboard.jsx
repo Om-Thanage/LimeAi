@@ -349,170 +349,171 @@ function Dashboard() {
 
     return (
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-left mb-1">{currentUser?.displayName} <span className="text-yellow-400"></span></h1>
+      <div className="lg:col-span-2">
+        <div className="mb-8">
+        <h1 className="text-3xl font-bold text-left mb-1">{currentUser?.displayName} <span className="text-yellow-400"></span></h1>
+        </div>
+        <div>
+        <h2 className="text-xl font-bold mb-4">Recent Activity</h2>
+        
+        {loading ? (
+          <div className="space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="animate-pulse flex">
+            <div className="rounded-full bg-slate-200 h-10 w-10"></div>
+            <div className="flex-1 ml-4 space-y-2">
+              <div className="h-4 bg-slate-200 rounded w-3/4"></div>
+              <div className="h-4 bg-slate-200 rounded w-1/2"></div>
+            </div>
+            </div>
+          ))}
           </div>
-          <div>
-            <h2 className="text-xl font-bold mb-4">Recent Activity</h2>
-            
-            {loading ? (
-              <div className="space-y-4">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="animate-pulse flex">
-                    <div className="rounded-full bg-slate-200 h-10 w-10"></div>
-                    <div className="flex-1 ml-4 space-y-2">
-                      <div className="h-4 bg-slate-200 rounded w-3/4"></div>
-                      <div className="h-4 bg-slate-200 rounded w-1/2"></div>
-                    </div>
-                  </div>
-                ))}
+        ) : activities.length > 0 ? (
+          <div className="space-y-4">
+          {activities.map((activity) => (
+            <div key={activity.id} 
+               className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+               onClick={() => openContentModal(activity)}>
+            <div className="flex sm:flex-row flex-col items-start">
+              <div className="py-2 mr-4">
+              {getActivityIcon(activity.type)}
               </div>
-            ) : activities.length > 0 ? (
-              <div className="space-y-4">
-                {activities.map((activity) => (
-                  <div key={activity.id} 
-                       className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                       onClick={() => openContentModal(activity)}>
-                    <div className="flex items-start">
-                      <div className="p-2 bg-gray-50 rounded-lg mr-4">
-                        {getActivityIcon(activity.type)}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <h3 className="font-semibold">{activity.title}</h3>
-                          <span className="text-xs text-gray-500">{formatDate(activity.createdAt)}</span>
-                        </div>
-                        <p className="text-sm text-gray-600 mt-1">
-                          {activity.type === 'flowchart' && 'Created a flowchart'}
-                          {activity.type === 'summary' && 'Generated a summary'}
-                          {activity.type === 'podcast' && 'Created a podcast'}
-                        </p>
-                        
-                        <div className="mt-2">
-                          <span className="text-xs text-blue-500 hover:underline">
-                            View {activity.type}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+              <div className="sm:flex-1 flex-2 w-full ">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold">{activity.title}</h3>
+                <span className="text-xs text-gray-500 sm:block hidden">{formatDate(activity.createdAt)}</span>
               </div>
-            ) : (
-              <div className="text-gray-500 text-center py-8">
-                <p>No recent activities found.</p>
-                <p className="text-sm mt-2">Try generating a flowchart, summary, or podcast!</p>
+              <p className="text-sm text-gray-600 mt-1">
+                {activity.type === 'flowchart' && 'Created a flowchart'}
+                {activity.type === 'summary' && 'Generated a summary'}
+                {activity.type === 'podcast' && 'Created a podcast'}
+              </p>
+              
+              <div className="mt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <span className="text-xs text-blue-500 hover:underline">
+                View {activity.type}
+                </span>
+                <span className="text-xs text-gray-500 sm:hidden mt-1">{formatDate(activity.createdAt)}</span>
               </div>
-            )}
+              </div>
+            </div>
+            </div>
+          ))}
+          </div>
+        ) : (
+          <div className="text-gray-500 text-center py-8">
+          <p>No recent activities found.</p>
+          <p className="text-sm mt-2">Try generating a flowchart, summary, or podcast!</p>
+          </div>
+        )}
+        </div>
+      </div>
+      
+      {/* Right side content */}
+      <div className="lg:col-span-1">            
+        {/* Date and Time */}
+        <div className="flex mb-6 text-center">
+        <div className="flex-1 mr-3">
+          <div className="text-blue-700 font-bold text-2xl">
+          {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long' })}
+          </div>
+        </div>
+        </div>
+
+        {/* Quick links */}
+          <div className="grid sm:grid-cols-2 grid-cols-1 gap-4 mb-8">
+          <div className="bg-orange-100 rounded-xl p-4">
+            <div className="flex justify-between mb-2">
+            <div className="font-bold">Podcast</div>
+            <button 
+            onClick={() => handleComponentClick('podcast')}
+            className="bg-white rounded-full w-6 h-6 flex items-center justify-center hover:cursor-pointer"
+            >
+            <Plus className="w-4 h-4" />
+            </button>
+            </div>
+            <p className="text-sm">Create podcasts with AI voices</p>
+          </div>
+          
+          <div className="bg-pink-100 rounded-xl p-4">
+            <div className="flex justify-between mb-2">
+            <div className="font-bold">Flowchart</div>
+            <button 
+            onClick={() => handleComponentClick('flowchart')}
+            className="bg-white rounded-full w-6 h-6 flex items-center justify-center hover:cursor-pointer"
+            >
+            <Plus className="w-4 h-4" />
+            </button>
+            </div>
+            <p className="text-sm">Get Conceptual clarity using flowcharts instantly.</p>
+          </div>
+          
+          <div className="bg-pink-100 rounded-xl p-4">
+            <div className="flex justify-between mb-2">
+            <div className="font-bold">AI Summarizer</div>
+            <button 
+            onClick={() => handleComponentClick('summary')}
+            className="bg-white rounded-full w-6 h-6 flex items-center justify-center hover:cursor-pointer"
+            >
+            <Plus className="w-4 h-4" />
+            </button>
+            </div>
+            <p className="text-sm">Summarize your lesson within seconds. Chat with AI and solve your doubts!</p>
+          </div>
+          
+          <div className="bg-orange-100 rounded-xl p-4">
+            <div className="flex justify-between mb-2">
+            <div className="font-bold">WhiteBoard</div>
+            <button 
+            onClick={() => handleComponentClick('whiteboard')}
+            className="bg-white rounded-full w-6 h-6 flex items-center justify-center hover:cursor-pointer"
+            >
+            <Plus className="w-4 h-4" />
+            </button>
+            </div>
+            <p className="text-sm">Create stunning drawings with AI-powered tools.</p>
+          </div>
+          </div>
+          
+          {/* Learning Streak - Modified Section */}
+        <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+        <div className="flex items-center mb-6">
+          <h2 className="text-xl font-bold flex-1">Learning Streak</h2>
+          <div className="flex items-center text-sm">
+          <Calendar className="w-4 h-4 mr-1" />
           </div>
         </div>
         
-        {/* Right side content */}
-        <div className="lg:col-span-1">            
-          {/* Date and Time */}
-          <div className="flex mb-6 text-center">
-            <div className="flex-1 mr-3">
-              <div className="text-blue-700 font-bold text-2xl">
-                {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long' })}
-              </div>
+        {/* Streak stats - Cool redesign with real data */}
+        <div className="grid sm:grid-cols-3 grid-cols-1 gap-4">
+          <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 text-center shadow-sm">
+          <div className="text-3xl font-bold text-green-600 mb-1">{streakData.currentStreak}</div>
+          <div className="text-xs text-gray-600 font-medium">Current Streak</div>
+          <div className="mt-2 w-full h-1 bg-green-200 rounded-full">
+            <div className="h-1 bg-green-500 rounded-full" 
+               style={{ width: `${streakData.longestStreak ? (streakData.currentStreak/streakData.longestStreak)*100 : 100}%` }}>
             </div>
           </div>
-
-          {/* Quick links */}
-                <div className="grid grid-cols-2 gap-4 mb-8">
-                <div className="bg-orange-100 rounded-xl p-4">
-                  <div className="flex justify-between mb-2">
-                  <div className="font-bold">Podcast</div>
-                  <button 
-                    onClick={() => handleComponentClick('podcast')}
-                    className="bg-white rounded-full w-6 h-6 flex items-center justify-center hover:cursor-pointer"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
-                  </div>
-                  <p className="text-sm">Create podcasts with AI voices</p>
-                </div>
-                
-                <div className="bg-pink-100 rounded-xl p-4">
-                  <div className="flex justify-between mb-2">
-                  <div className="font-bold">Flowchart</div>
-                  <button 
-                    onClick={() => handleComponentClick('flowchart')}
-                    className="bg-white rounded-full w-6 h-6 flex items-center justify-center hover:cursor-pointer"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
-                  </div>
-                  <p className="text-sm">Get Conceptual clarity using flowcharts instantly.</p>
-                </div>
-                
-                <div className="bg-pink-100 rounded-xl p-4">
-                  <div className="flex justify-between mb-2">
-                  <div className="font-bold">AI Summarizer</div>
-                  <button 
-                    onClick={() => handleComponentClick('summary')}
-                    className="bg-white rounded-full w-6 h-6 flex items-center justify-center hover:cursor-pointer"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
-                  </div>
-                  <p className="text-sm">Summarize your lesson within seconds. Chat with AI and solve your doubts!</p>
-                </div>
-                
-                <div className="bg-orange-100 rounded-xl p-4">
-                  <div className="flex justify-between mb-2">
-                  <div className="font-bold">WhiteBoard</div>
-                  <button 
-                    onClick={() => handleComponentClick('whiteboard')}
-                    className="bg-white rounded-full w-6 h-6 flex items-center justify-center hover:cursor-pointer"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
-                  </div>
-                  <p className="text-sm">Create stunning drawings with AI-powered tools.</p>
-                </div>
-                </div>
-                
-                {/* Learning Streak - Modified Section */}
-          <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-            <div className="flex items-center mb-6">
-              <h2 className="text-xl font-bold flex-1">Learning Streak</h2>
-              <div className="flex items-center text-sm">
-                <Calendar className="w-4 h-4 mr-1" />
-              </div>
-            </div>
-            
-            {/* Streak stats - Cool redesign with real data */}
-            <div className="grid grid-cols-3 gap-4">
-              <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 text-center shadow-sm">
-                <div className="text-3xl font-bold text-green-600 mb-1">{streakData.currentStreak}</div>
-                <div className="text-xs text-gray-600 font-medium">Current Streak</div>
-                <div className="mt-2 w-full h-1 bg-green-200 rounded-full">
-                  <div className="h-1 bg-green-500 rounded-full" 
-                       style={{ width: `${streakData.longestStreak ? (streakData.currentStreak/streakData.longestStreak)*100 : 100}%` }}>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 text-center shadow-sm">
-                <div className="text-3xl font-bold text-blue-600 mb-1">{streakData.longestStreak}</div>
-                <div className="text-xs text-gray-600 font-medium">Longest Streak</div>
-                <div className="mt-2 w-full h-1 bg-blue-200 rounded-full">
-                  <div className="h-1 bg-blue-500 rounded-full" style={{ width: '100%' }}></div>
-                </div>
-              </div>
-              
-              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 text-center shadow-sm">
-                <div className="text-3xl font-bold text-purple-600 mb-1">{streakData.totalDays}</div>
-                <div className="text-xs text-gray-600 font-medium">Total Days</div>
-                <div className="mt-2 w-full h-1 bg-purple-200 rounded-full">
-                  <div className="h-1 bg-purple-500 rounded-full" style={{ width: '75%' }}></div>
-                </div>
-              </div>
-            </div>
+          </div>
+          
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 text-center shadow-sm">
+          <div className="text-3xl font-bold text-blue-600 mb-1">{streakData.longestStreak}</div>
+          <div className="text-xs text-gray-600 font-medium">Longest Streak</div>
+          <div className="mt-2 w-full h-1 bg-blue-200 rounded-full">
+            <div className="h-1 bg-blue-500 rounded-full" style={{ width: '100%' }}></div>
+          </div>
+          </div>
+          
+          <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 text-center shadow-sm">
+          <div className="text-3xl font-bold text-purple-600 mb-1">{streakData.totalDays}</div>
+          <div className="text-xs text-gray-600 font-medium">Total Days</div>
+          <div className="mt-2 w-full h-1 bg-purple-200 rounded-full">
+            <div className="h-1 bg-purple-500 rounded-full" style={{ width: '75%' }}></div>
+          </div>
           </div>
         </div>
+        </div>
+      </div>
       </div>
     );
   };
@@ -522,7 +523,7 @@ function Dashboard() {
       <style>{interFontStyle}</style>
       <div className="flex h-screen bg-blue-500 font-[Inter]">
         {/* Sidebar */}
-        <div className="w-20 flex flex-col items-center pt-8 pb-4 space-y-8">
+        <div className="w-20 sm:flex flex-col items-center pt-8 pb-4 space-y-8 hidden">
           <div className="w-10 h-10 rounded-lg flex items-center justify-center">
             <img src='assets/images/Lemon.png' alt='Logo' />
           </div>
@@ -618,7 +619,7 @@ function Dashboard() {
         </div>
         
         {/* Main content */}
-        <div className="flex-1 bg-white rounded-tl-3xl rounded-bl-3xl p-8 overflow-y-auto">
+        <div className="flex-1 bg-white sm:rounded-tl-3xl sm:rounded-bl-3xl p-8 overflow-y-auto">
           {renderContent()}
         </div>
 
