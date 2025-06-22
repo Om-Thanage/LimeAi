@@ -23,7 +23,7 @@ LimeAI is an AI-powered educational platform designed to provide personalized le
 - **Diagram Rendering:** Mermaid.js  
 - **Whiteboard Rendering:** Excalidraw API 
 - **Text Extraction (OCR):** Mammoth.js 
-- **Text to Speech (Podcast):** PlayDialogue 
+- **Text to Speech (Podcast):** PlayDialogue API
 
 ##  Setup & Installation  
 ```sh
